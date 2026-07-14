@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ${PROJECT_NAME:-peppercore}_backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - ./backend:/var/www/html
+    environment:
+      - APP_ENV=${APP_ENV:-local}
+      - APP_DEBUG=${APP_DEBUG:-true}
+      - APP_KEY=${APP_KEY}
+      - DB_CONNECTION=pgsql
+      - DB_HOST=${DB_HOST:-postgres}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_DATABASE=${DB_DATABASE:-peppercore_admin}
+      - DB_USERNAME=${DB_USER:-peppercore}
+      - DB_PASSWORD=${DB_PASSWORD:-secret123}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis123}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - peppercore_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: ${PROJECT_NAME:-peppercore}_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
+    depends_on:
+      - backend
+    networks:
+      - peppercore_network
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: ${PROJECT_NAME:-peppercore}_postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${DB_DATABASE:-peppercore_admin}
+      - POSTGRES_USER=${DB_USER:-peppercore}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-secret123}
+    ports:
+      - "${DB_PORT_EXTERNAL}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-peppercore} -d ${DB_DATABASE:-peppercore_admin}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - peppercore_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: ${PROJECT_NAME:-peppercore}_redis
+    restart: unless-stopped
+    command: redis-server --requirepass "${REDIS_PASSWORD:-redis123}" --bind 0.0.0.0 --protected-mode no
+    ports:
+      - "${REDIS_PORT_EXTERNAL:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - peppercore_network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  peppercore_network:
+    driver: bridge
