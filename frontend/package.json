@@ -9,9 +9,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "ag-grid-community": "^36.0.0",
+    "ag-grid-vue3": "^36.0.0",
+    "autoprefixer": "^10.5.3",
+    "collect.js": "^4.36.1",
+    "echarts": "^6.1.0",
+    "pinia": "^2.1.7",
+    "postcss": "^8.5.19",
+    "tailwindcss": "^4.3.2",
     "vue": "^3.4.21",
-    "vue-router": "^4.3.0",
-    "pinia": "^2.1.7"
+    "vue-router": "^4.3.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
