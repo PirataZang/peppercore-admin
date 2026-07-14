@@ -7,7 +7,7 @@ RUN npm install
 # Stage 2: Development image
 FROM base AS development
 COPY . .
-EXPOSE 5173
+EXPOSE 5174
 CMD ["npm", "run", "dev"]
 
 # Stage 3: Build image

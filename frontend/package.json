@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tailwindcss/postcss": "^4.3.2",
     "ag-grid-community": "^36.0.0",
     "ag-grid-vue3": "^36.0.0",
     "autoprefixer": "^10.5.3",
