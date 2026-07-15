@@ -1,6 +1,6 @@
 <template>
     <div class="grid-wrapper ag-theme-quartz">
-        <AgGridVue class="grid" theme="legacy" :rowData="rowData" :columnDefs="columnDefs" :columnTypes="columnTypes" :defaultColDef="defaultColDef" :localeText="localeText" :rowSelection="rowSelectionConfig" :context="context" @grid-ready="onGridReady" @selection-changed="onSelectionChanged" @row-clicked="onRowClicked" />
+        <AgGridVue class="grid" :rowData="rowData" :columnDefs="columnDefs" :columnTypes="columnTypes" :defaultColDef="defaultColDef" :localeText="localeText" :rowSelection="rowSelectionConfig" :context="context" @grid-ready="onGridReady" @selection-changed="onSelectionChanged" @row-clicked="onRowClicked" />
         
         <!-- Painel de Paginação Premium Customizado -->
         <div class="custom-pagination">
