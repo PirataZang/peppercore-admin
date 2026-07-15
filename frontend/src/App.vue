@@ -225,5 +225,6 @@ export default {
 .content-body {
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 </style>

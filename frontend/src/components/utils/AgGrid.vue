@@ -1,6 +1,6 @@
 <template>
-    <div class="grid-wrapper ag-theme-quartz">
-        <AgGridVue class="grid" theme="legacy" :rowData="rowData" :columnDefs="columnDefs" :columnTypes="columnTypes" :defaultColDef="defaultColDef" :localeText="localeText" :rowSelection="rowSelectionConfig" :context="context" @grid-ready="onGridReady" @selection-changed="onSelectionChanged" @row-clicked="onRowClicked" />
+    <div class="grid-wrapper ag-theme-quartz" :class="{ 'auto-height': isAutoHeight }">
+        <AgGridVue class="grid" theme="legacy" :rowData="rowData" :columnDefs="columnDefs" :columnTypes="columnTypes" :defaultColDef="defaultColDef" :localeText="localeText" :rowSelection="rowSelectionConfig" :context="context" :domLayout="domLayout" @grid-ready="onGridReady" @selection-changed="onSelectionChanged" @row-clicked="onRowClicked" />
         
         <!-- Painel de Paginação Premium Customizado -->
         <div class="custom-pagination">
@@ -109,6 +109,9 @@ const rowSelectionConfig = computed(() => {
     }
 })
 
+const isAutoHeight = computed(() => props.gridHeight === 'auto')
+const domLayout = computed(() => isAutoHeight.value ? 'autoHeight' : 'normal')
+
 const localeText = {
     page: 'Página',
     more: 'Mais',
@@ -209,18 +212,29 @@ const changePageSize = (event) => {
     flex-direction: column;
 }
 
+.grid-wrapper.auto-height {
+    height: auto;
+}
+
 .grid-wrapper .grid {
     width: 100%;
     flex: 1;
     min-height: 0;
 }
 
+.grid-wrapper.auto-height .grid {
+    flex: none;
+}
+
 .grid-wrapper .grid :deep(.ag-row) {
     cursor: pointer;
+    transition: background-color 0.15s ease, border-left-color 0.15s ease;
+    border-left: 3px solid transparent;
 }
 
 .grid-wrapper .grid :deep(.ag-row:hover) {
-    background-color: #faf9f7;
+    background-color: rgba(255, 77, 77, 0.07) !important;
+    border-left-color: rgba(255, 77, 77, 0.6);
 }
 
 .grid-wrapper .grid :deep(.cell-center) {

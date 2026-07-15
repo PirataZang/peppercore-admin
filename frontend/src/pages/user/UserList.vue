@@ -40,7 +40,7 @@
         :pageSize="pageSize" 
         :totalRows="totalRows" 
         :selectable="true" 
-        gridHeight="450px"
+        gridHeight="auto"
         @update:page="handlePageChange"
         @update:pageSize="handlePageSizeChange"
         @update:selection="handleSelectionChange"
@@ -146,6 +146,13 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.grid-card-container {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 16px;
 }
 
 .fade-in {
