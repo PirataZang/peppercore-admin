@@ -9,7 +9,7 @@
     </div>
 
     <!-- Barra de Ações -->
-    <div class="flex justify-between items-center mt-2 flex-wrap gap-4">
+    <div class="flex justify-between items-center flex-wrap gap-4">
       <div class="search-bar glass-panel px-4 py-2 flex items-center gap-2 w-96">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         <input 
@@ -32,7 +32,7 @@
     </div>
 
     <!-- Grid Card Container -->
-    <div class="grid-card-container glass-panel glass-panel-glow p-4">
+    <div class="grid-card-container glass-panel-glow">
       <AgGrid 
         :rowData="usersData" 
         :columnDefs="columnDefs" 
