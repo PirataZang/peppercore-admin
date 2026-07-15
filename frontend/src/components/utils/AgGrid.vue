@@ -1,39 +1,41 @@
 <template>
     <div class="grid-wrapper ag-theme-quartz" :class="{ 'auto-height': isAutoHeight }">
-        <AgGridVue class="grid" theme="legacy" :rowData="rowData" :columnDefs="columnDefs" :columnTypes="columnTypes" :defaultColDef="defaultColDef" :localeText="localeText" :rowSelection="rowSelectionConfig" :context="context" :domLayout="domLayout" @grid-ready="onGridReady" @selection-changed="onSelectionChanged" @row-clicked="onRowClicked" />
-        
+        <AgGridVue class="grid" theme="legacy" :rowData="rowData" :columnDefs="columnDefs" :columnTypes="columnTypes"
+            :defaultColDef="defaultColDef" :localeText="localeText" :rowSelection="rowSelectionConfig"
+            :context="context" :domLayout="domLayout" @grid-ready="onGridReady" @selection-changed="onSelectionChanged"
+            @row-clicked="onRowClicked" />
+
         <!-- Painel de Paginação Premium Customizado -->
         <div class="custom-pagination">
             <div class="pagination-info">
-                Exibindo <span class="highlight">{{ fromRecord }}</span> a <span class="highlight">{{ toRecord }}</span> de <span class="highlight">{{ totalRows }}</span> registros
+                Exibindo <span class="highlight">{{ fromRecord }}</span> a <span class="highlight">{{ toRecord }}</span>
+                de <span class="highlight">{{ totalRows }}</span> registros
             </div>
-            
+
             <div class="pagination-controls">
                 <button class="pag-btn" :disabled="currentPage === 1" @click="changePage(1)" title="Primeira Página">
                     <i class="fa-solid fa-angles-left"></i>
                 </button>
-                <button class="pag-btn" :disabled="currentPage === 1" @click="changePage(currentPage - 1)" title="Página Anterior">
+                <button class="pag-btn" :disabled="currentPage === 1" @click="changePage(currentPage - 1)"
+                    title="Página Anterior">
                     <i class="fa-solid fa-angle-left"></i>
                 </button>
-                
-                <button 
-                    v-for="page in visiblePages" 
-                    :key="page" 
-                    class="pag-btn page-num" 
-                    :class="{ active: page === currentPage }"
-                    @click="changePage(page)"
-                >
+
+                <button v-for="page in visiblePages" :key="page" class="pag-btn page-num"
+                    :class="{ active: page === currentPage }" @click="changePage(page)">
                     {{ page }}
                 </button>
-                
-                <button class="pag-btn" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)" title="Próxima Página">
+
+                <button class="pag-btn" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)"
+                    title="Próxima Página">
                     <i class="fa-solid fa-angle-right"></i>
                 </button>
-                <button class="pag-btn" :disabled="currentPage === totalPages" @click="changePage(totalPages)" title="Última Página">
+                <button class="pag-btn" :disabled="currentPage === totalPages" @click="changePage(totalPages)"
+                    title="Última Página">
                     <i class="fa-solid fa-angles-right"></i>
                 </button>
             </div>
-            
+
             <div class="pagination-size">
                 <span>Registros por página:</span>
                 <select :value="pageSize" @change="changePageSize($event)" class="size-select">
@@ -210,6 +212,7 @@ const changePageSize = (event) => {
     height: v-bind(gridHeight);
     display: flex;
     flex-direction: column;
+
 }
 
 .grid-wrapper.auto-height {
@@ -220,6 +223,10 @@ const changePageSize = (event) => {
     width: 100%;
     flex: 1;
     min-height: 0;
+    display: flex;
+    top: 0;
+    position: relative;
+    flex-direction: column;
 }
 
 .grid-wrapper.auto-height .grid {
@@ -358,14 +365,17 @@ const changePageSize = (event) => {
         text-align: center;
         gap: 16px;
     }
+
     .custom-pagination .pagination-info {
         order: 1;
     }
+
     .custom-pagination .pagination-controls {
         order: 2;
         width: 100%;
         justify-content: center;
     }
+
     .custom-pagination .pagination-size {
         order: 3;
     }
