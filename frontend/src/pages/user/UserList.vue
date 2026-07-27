@@ -45,6 +45,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AgGrid from '../../components/utils/AgGrid.vue'
+import { apiFetch } from '@/services/api'
 
 const router = useRouter()
 
@@ -73,7 +74,7 @@ const columnDefs = ref([
 const fetchUsers = async () => {
   try {
     const url = `/api/users?page=${currentPage.value}&per_page=${pageSize.value}&search=${searchQuery.value}`
-    const response = await fetch(url).then(res => res.json())
+    const response = await apiFetch(url).then(res => res.json())
 
     usersData.value = response.data
     totalRows.value = response.total
@@ -119,7 +120,7 @@ const deleteSelectedUsers = async () => {
 
   try {
     for (const user of selectedUsers.value) {
-      await fetch(`/api/users/${user.id}`, { method: 'DELETE' }).then(res => res.json())
+      await apiFetch(`/api/users/${user.id}`, { method: 'DELETE' }).then(res => res.json())
     }
     fetchUsers()
   } catch (err) {

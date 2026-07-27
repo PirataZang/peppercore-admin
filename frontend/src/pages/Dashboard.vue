@@ -95,6 +95,7 @@
 
 <script>
 import { ref, onMounted } from 'vue'
+import { apiFetch } from '@/services/api'
 
 export default {
   name: 'Dashboard',
@@ -126,7 +127,7 @@ export default {
       addLog('frontend', 'info', 'Iniciando testes de conectividade da stack...')
 
       try {
-        const response = await fetch('/api/status').then(res => res.json())
+        const response = await apiFetch('/api/status').then(res => res.json())
         
         laravelStatus.value = 'online'
         laravelStatusText.value = 'Conectado'
