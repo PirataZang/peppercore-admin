@@ -240,8 +240,8 @@ const changePageSize = (event) => {
 }
 
 .grid-wrapper .grid :deep(.ag-row:hover) {
-    background-color: rgba(255, 77, 77, 0.07) !important;
-    border-left-color: rgba(255, 77, 77, 0.6);
+    background-color: #fff1f2 !important;
+    border-left-color: var(--color-primary, #e11d48);
 }
 
 .grid-wrapper .grid :deep(.cell-center) {

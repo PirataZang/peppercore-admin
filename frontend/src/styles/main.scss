@@ -1,9 +1,5 @@
 @use 'colors' as *;
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 :root {
   --color-primary: #{$color-primary};
   --color-primary-hover: #{$color-primary-hover};
@@ -47,6 +43,7 @@
   --radius-lg: #{$radius-lg};
   --radius-xl: #{$radius-xl};
 
+  // aliases legados
   --primary: #{$color-primary};
   --primary-hover: #{$color-primary-hover};
   --primary-glow: #{$color-primary-glow};
@@ -74,15 +71,14 @@
 *::before,
 *::after {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 html,
 body,
 #app {
   height: 100%;
-  min-height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 body {
@@ -92,6 +88,15 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6, p {
+  margin: 0;
+}
+
+ul, ol {
+  margin: 0;
+  padding: 0;
 }
 
 a {
@@ -106,7 +111,14 @@ select {
   font: inherit;
 }
 
-.glass-panel {
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+.glass-panel,
+.glass-panel-glow {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
@@ -114,9 +126,6 @@ select {
 }
 
 .glass-panel-glow {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-md);
 }
 
@@ -133,4 +142,3 @@ select {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-muted);
 }
-

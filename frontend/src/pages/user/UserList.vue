@@ -6,10 +6,10 @@
       icon="fa-solid fa-users"
     />
 
-    <div class="toolbar">
+    <div class="list-toolbar">
       <label class="search-field">
         <i class="fa-solid fa-magnifying-glass" aria-hidden="true" />
-        <input
+        <Input
           type="search"
           v-model="searchQuery"
           @input="debounceSearch"
@@ -17,26 +17,26 @@
         />
       </label>
 
-      <div class="toolbar__actions">
-        <Button
-          v-if="selectedUsers.length === 1"
-          variant="edit"
-          icon="fa-solid fa-pen-to-square"
-          label="Editar"
-          @click="editSelected"
-        />
-        <Button
-          v-if="selectedUsers.length > 0"
-          variant="danger"
-          icon="fa-solid fa-trash-can"
-          :label="`Excluir (${selectedUsers.length})`"
-          @click="deleteSelectedUsers"
-        />
+      <div class="list-toolbar__actions">
         <Button
           variant="create"
           icon="fa-solid fa-plus"
           label="Incluir"
           @click="$router.push('/user/form')"
+        />
+        <Button
+          variant="edit"
+          icon="fa-solid fa-pen-to-square"
+          label="Alterar"
+          :disabled="selectedUsers.length !== 1"
+          @click="editSelected"
+        />
+        <Button
+          variant="danger"
+          icon="fa-solid fa-trash-can"
+          :label="selectedUsers.length > 0 ? `Excluir (${selectedUsers.length})` : 'Excluir'"
+          :disabled="selectedUsers.length === 0"
+          @click="deleteSelectedUsers"
         />
       </div>
     </div>
@@ -65,6 +65,7 @@ import AgGrid from '../../components/utils/AgGrid.vue'
 import Button from '@/components/utils/Button.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { apiFetch } from '@/services/api'
+import { swal } from '@/plugins/swal'
 
 const router = useRouter()
 
@@ -143,18 +144,25 @@ const editSelected = () => {
 const deleteSelectedUsers = async () => {
   if (selectedUsers.value.length === 0) return
 
-  const confirmDelete = confirm(
-    `Deseja realmente excluir ${selectedUsers.value.length} usuário(s) selecionado(s)?`,
-  )
-  if (!confirmDelete) return
+  const targets = [...selectedUsers.value]
+  const ok = await swal.confirmDelete({
+    count: targets.length,
+    entity: 'usuário',
+    entityPlural: 'usuários',
+  })
+  if (!ok) return
 
   try {
-    for (const user of selectedUsers.value) {
+    for (const user of targets) {
       await apiFetch(`/api/users/${user.id}`, { method: 'DELETE' }).then((res) => res.json())
     }
-    fetchUsers()
+    await fetchUsers()
+    swal.toastSuccess(
+      targets.length > 1 ? 'Usuários excluídos com sucesso!' : 'Usuário excluído com sucesso!',
+    )
   } catch (err) {
     console.error('Falha ao excluir usuários:', err)
+    swal.toastError('Falha ao excluir usuário(s).')
   }
 }
 
@@ -162,6 +170,26 @@ onMounted(fetchUsers)
 </script>
 
 <style scoped>
+.list-toolbar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+}
+
+.list-toolbar .search-field {
+  width: 100%;
+  max-width: 420px;
+}
+
+.list-toolbar__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .grid-wrap {
   background: #ffffff;
   border: 1px solid var(--color-border);

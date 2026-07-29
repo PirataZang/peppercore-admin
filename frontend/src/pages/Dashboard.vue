@@ -9,7 +9,7 @@
     </div>
 
     <!-- Service Status Grid -->
-    <div class="flex justify-between items-center mt-2">
+    <div class="section-head">
       <h3 class="section-title">Status da Conectividade</h3>
       <button @click="testAllConnections" class="action-btn-primary" :disabled="testing">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" :class="{ 'spin': testing }"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
@@ -241,10 +241,18 @@ export default {
   filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.4));
 }
 
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
 .section-title {
   font-size: 1.1rem;
   font-weight: 600;
-  margin-top: 10px;
   letter-spacing: 0.5px;
   color: var(--text-primary);
 }

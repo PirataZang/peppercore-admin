@@ -173,10 +173,34 @@ const onClick = (event) => {
   font-size: 0.9375rem;
 }
 
-.btn--primary,
-.btn--create {
+.btn--primary {
   --btn-bg: var(--color-primary);
   --btn-bg-hover: var(--color-primary-hover);
+  --btn-color: #ffffff;
+  --btn-border: transparent;
+}
+
+/* Incluir = azul */
+.btn--create {
+  --btn-bg: var(--color-info);
+  --btn-bg-hover: #1d4ed8;
+  --btn-color: #ffffff;
+  --btn-border: transparent;
+}
+
+/* Alterar = verde */
+.btn--edit,
+.btn--success {
+  --btn-bg: var(--color-success);
+  --btn-bg-hover: #047857;
+  --btn-color: #ffffff;
+  --btn-border: transparent;
+}
+
+/* Excluir = vermelho */
+.btn--danger {
+  --btn-bg: var(--color-danger);
+  --btn-bg-hover: #b91c1c;
   --btn-color: #ffffff;
   --btn-border: transparent;
 }
@@ -193,28 +217,6 @@ const onClick = (event) => {
   --btn-bg: transparent;
   --btn-bg-hover: var(--color-bg-muted);
   --btn-color: var(--color-text-secondary);
-  --btn-border: transparent;
-  --btn-shadow: none;
-}
-
-.btn--danger {
-  --btn-bg: var(--color-danger);
-  --btn-bg-hover: #b91c1c;
-  --btn-color: #ffffff;
-  --btn-border: transparent;
-}
-
-.btn--success {
-  --btn-bg: var(--color-success);
-  --btn-bg-hover: #047857;
-  --btn-color: #ffffff;
-  --btn-border: transparent;
-}
-
-.btn--edit {
-  --btn-bg: var(--color-info-soft);
-  --btn-bg-hover: #dbeafe;
-  --btn-color: var(--color-info);
   --btn-border: transparent;
   --btn-shadow: none;
 }
