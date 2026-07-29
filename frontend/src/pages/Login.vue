@@ -1,8 +1,8 @@
 <template>
   <div class="login-page">
-    <div class="login-card glass-panel glass-panel-glow">
+    <div class="login-card">
       <div class="login-header">
-        <span class="logo">🌶️</span>
+        <span class="logo" aria-hidden="true">🌶️</span>
         <div>
           <h1>PepperCore Admin</h1>
           <p>Entre com suas credenciais para acessar o console.</p>
@@ -10,31 +10,37 @@
       </div>
 
       <form class="login-form" @submit.prevent="handleSubmit">
-        <Input
-          v-model="form.email"
-          label="E-mail"
-          type="email"
-          autocomplete="email"
-          placeholder="seu@email.com"
-          required
-        />
+        <div class="form-grid">
+          <Input
+            v-model="form.email"
+            class="col-12"
+            label="E-mail"
+            type="email"
+            autocomplete="email"
+            placeholder="seu@email.com"
+            required
+          />
 
-        <Input
-          v-model="form.password"
-          label="Senha"
-          type="password"
-          autocomplete="current-password"
-          placeholder="Digite sua senha"
-          required
-        />
+          <Input
+            v-model="form.password"
+            class="col-12"
+            label="Senha"
+            type="password"
+            autocomplete="current-password"
+            placeholder="Digite sua senha"
+            required
+          />
+        </div>
 
         <p v-if="error" class="form-error">{{ error }}</p>
 
         <Button
           native-type="submit"
+          variant="primary"
+          block
+          icon="fa-solid fa-right-to-bracket"
           :label="loading ? 'Entrando...' : 'Entrar'"
           :disabled="loading"
-          color="#ff4d4d"
         />
       </form>
     </div>
@@ -81,6 +87,7 @@ const handleSubmit = async () => {
   align-items: center;
   justify-content: center;
   padding: 24px;
+  background: var(--color-bg-app);
 }
 
 .login-card {
@@ -88,50 +95,43 @@ const handleSubmit = async () => {
   max-width: 420px;
   padding: 32px;
   border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
 }
 
 .login-header {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
 }
 
 .logo {
-  font-size: 2.5rem;
-  filter: drop-shadow(0 0 8px rgba(255, 77, 77, 0.4));
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: var(--color-primary-soft);
+  font-size: 1.75rem;
 }
 
 .login-header h1 {
-  font-size: 1.4rem;
+  font-size: 1.35rem;
+  font-weight: 700;
   margin-bottom: 4px;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--color-text);
 }
 
 .login-header p {
-  color: var(--text-secondary);
+  color: var(--color-text-muted);
   font-size: 0.9rem;
 }
 
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-}
-
-.login-form :deep(.button-style) {
-  width: 100%;
-  margin: 0;
-}
-
-.form-error {
-  color: #ef4444;
-  font-size: 0.875rem;
-  background: rgba(239, 68, 68, 0.1);
-  padding: 12px 16px;
-  border-radius: 8px;
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  gap: 18px;
 }
 </style>

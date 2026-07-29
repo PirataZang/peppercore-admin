@@ -1,4 +1,5 @@
 {
+  "$schema": "https://opencode.ai/config.json",
   "tools": {
     "context7_*": false,
     "mcp-grep_*": false,

@@ -1,12 +1,13 @@
 <template>
-  <div class="inputWrapper" :style="{ width }">
-    <label v-if="label" class="inputLabel">{{ label }}</label>
+  <div class="field">
+    <label v-if="label" class="field-label" :for="inputId">{{ label }}</label>
 
-    <div class="inputGroup" :class="{ isDisabled: disabled }">
+    <div class="field-shell field-control" :class="{ 'is-disabled': disabled }">
       <textarea
+        :id="inputId"
         v-model="model"
-        class="inputField"
-        :class="{ isSmall: small }"
+        class="field-input"
+        :class="{ 'is-small': small }"
         :name="inputName"
         :placeholder="placeholder"
         :disabled="disabled"
@@ -21,34 +22,14 @@
 import { computed, useAttrs } from 'vue'
 
 const props = defineProps({
-  width: {
-    type: String,
-    default: '',
-  },
-  label: {
-    type: String,
-    default: '',
-  },
-  placeholder: {
-    type: String,
-    default: '',
-  },
-  disabled: {
-    type: Boolean,
-    default: false,
-  },
-  small: {
-    type: Boolean,
-    default: false,
-  },
-  name: {
-    type: String,
-    default: null,
-  },
-  rows: {
-    type: Number,
-    default: 4,
-  },
+  width: { type: String, default: '' },
+  label: { type: String, default: '' },
+  placeholder: { type: String, default: '' },
+  disabled: { type: Boolean, default: false },
+  small: { type: Boolean, default: false },
+  name: { type: String, default: null },
+  rows: { type: Number, default: 4 },
+  id: { type: String, default: '' },
 })
 
 const model = defineModel({ default: '' })
@@ -56,72 +37,57 @@ const attrs = useAttrs()
 
 const generatedName = 'txt_' + Math.random().toString(36).slice(2, 9)
 const inputName = computed(() => props.name || generatedName)
+const inputId = computed(() => props.id || inputName.value)
 
 const inputAttrs = computed(() => {
-  const { class: _class, ...rest } = attrs
+  const { class: _c, style: _s, ...rest } = attrs
   return rest
 })
 </script>
 
 <style scoped lang="scss">
-.inputWrapper {
+.field {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
 
-  .inputLabel {
-    font-size: 13px;
-    color: var(--text-secondary);
-    margin-bottom: 4px;
+.field-shell {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  min-height: auto;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.field-input {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 0.875rem;
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.45;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: var(--color-text-faint);
   }
 
-  .inputGroup {
-    position: relative;
-    display: flex;
-    align-items: center;
-    transition: all 0.2s ease;
+  &:disabled {
+    cursor: not-allowed;
+  }
 
-    &.isDisabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-
-    &:not(.isDisabled) {
-      cursor: text;
-    }
-
-    .inputField {
-      width: 100%;
-      padding: 0.6rem 0.85rem;
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      background-color: rgba(11, 15, 25, 0.5);
-      color: var(--text-primary);
-      outline: none;
-      transition: all 0.2s ease;
-      font-size: 14px;
-      resize: vertical;
-      font-family: inherit;
-
-      &::placeholder {
-        color: var(--text-muted);
-      }
-
-      &:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.12);
-      }
-
-      &:disabled {
-        background-color: rgba(11, 15, 25, 0.35);
-        cursor: not-allowed;
-      }
-    }
-
-    .isSmall {
-      padding: 1px;
-      padding-left: 5px;
-    }
+  &.is-small {
+    padding: 6px 10px;
+    font-size: 0.8125rem;
   }
 }
 </style>

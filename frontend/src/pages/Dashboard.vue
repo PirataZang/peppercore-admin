@@ -217,17 +217,16 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 32px;
+  padding: 28px;
   border-radius: 16px;
-  background: linear-gradient(135deg, rgba(20, 30, 54, 0.8) 0%, rgba(255, 77, 77, 0.05) 100%);
+  background: #ffffff;
 }
 
 .banner-content h2 {
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   margin-bottom: 8px;
-  background: linear-gradient(90deg, #ffffff, #dcdcdc);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  color: var(--color-text);
 }
 
 .banner-content p {
@@ -248,6 +247,39 @@ export default {
   margin-top: 10px;
   letter-spacing: 0.5px;
   color: var(--text-primary);
+}
+
+.action-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.action-btn-primary:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.action-btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .status-grid {

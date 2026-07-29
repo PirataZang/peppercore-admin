@@ -1,76 +1,62 @@
 <template>
-  <div class="dashboard-container">
-    <aside class="sidebar glass-panel">
-      <div class="brand">
-        <span class="logo">🌶️</span>
-        <div class="brand-text">
-          <h1>PepperCore</h1>
-          <span class="subtitle">Admin Console</span>
-        </div>
-      </div>
+  <div class="shell">
+    <AppSidebar
+      :visible="sidebarVisible"
+      :user-name="auth.user?.name || 'Usuário'"
+      :user-email="auth.user?.email || ''"
+      :user-initials="auth.userInitials"
+    />
 
-      <nav class="nav-menu">
-        <router-link to="/dashboard" class="nav-item" active-class="active">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg>
-          Dashboard
-        </router-link>
-        <router-link to="/user" class="nav-item" active-class="active">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-          Usuários
-        </router-link>
-        <a href="#" class="nav-item">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-          Serviços
-        </a>
-        <a href="#" class="nav-item">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-          Logs do Sistema
-        </a>
-      </nav>
+    <div class="shell__main">
+      <header class="topbar">
+        <div class="topbar__left">
+          <button
+            type="button"
+            class="icon-btn"
+            :aria-label="sidebarVisible ? 'Ocultar menu' : 'Exibir menu'"
+            :aria-expanded="sidebarVisible"
+            @click="sidebarVisible = !sidebarVisible"
+          >
+            <i class="fa-solid fa-bars" aria-hidden="true" />
+          </button>
 
-      <div class="user-profile">
-        <div class="avatar">{{ auth.userInitials }}</div>
-        <div class="user-info">
-          <span class="user-name">{{ auth.user?.name || 'Usuário' }}</span>
-          <span class="user-role">{{ auth.user?.email || '' }}</span>
-        </div>
-      </div>
-    </aside>
-
-    <main class="main-content">
-      <header class="topbar glass-panel">
-        <div class="search-bar">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-secondary"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="text" placeholder="Buscar recursos..." class="bg-transparent border-none outline-none text-white w-full text-sm" />
+          <label class="search">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true" />
+            <input type="search" placeholder="Buscar recursos..." />
+          </label>
         </div>
 
-        <div class="topbar-actions">
-          <div class="logged-user">
-            <div class="logged-user-info">
-              <span class="logged-user-name">{{ auth.user?.name }}</span>
-              <span class="logged-user-email">{{ auth.user?.email }}</span>
+        <div class="topbar__right">
+          <div class="whoami">
+            <div class="whoami__text">
+              <strong>{{ auth.user?.name }}</strong>
+              <span>{{ auth.user?.email }}</span>
             </div>
-            <div class="avatar avatar-sm">{{ auth.userInitials }}</div>
-            <button type="button" class="logout-btn" @click="handleLogout" :disabled="loggingOut">
-              {{ loggingOut ? 'Saindo...' : 'Sair' }}
-            </button>
+            <div class="whoami__avatar">{{ auth.userInitials }}</div>
           </div>
+
+          <button type="button" class="logout" :disabled="loggingOut" @click="handleLogout">
+            <i class="fa-solid fa-right-from-bracket" aria-hidden="true" />
+            <span>{{ loggingOut ? 'Saindo...' : 'Sair' }}</span>
+          </button>
         </div>
       </header>
 
-      <div class="content-body">
+      <main class="shell__content">
         <router-view />
-      </div>
-    </main>
+      </main>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import AppSidebar from '@/components/layout/AppSidebar.vue'
 
 const auth = useAuthStore()
 const loggingOut = ref(false)
+const sidebarVisible = ref(true)
 
 const handleLogout = async () => {
   loggingOut.value = true
@@ -78,249 +64,187 @@ const handleLogout = async () => {
   loggingOut.value = false
 }
 
-onMounted(() => {
-  auth.startPolling()
-})
-
-onUnmounted(() => {
-  auth.stopPolling()
-})
+onMounted(() => auth.startPolling())
+onUnmounted(() => auth.stopPolling())
 </script>
 
-<style scoped>
-.dashboard-container {
+<style lang="scss" scoped>
+@use '@/styles/colors' as *;
+
+.shell {
   display: flex;
-  min-height: 100vh;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: $color-bg-app;
 }
 
-.sidebar {
-  width: 260px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  border-radius: 0 16px 16px 0;
-  border-left: none;
-  background: rgba(15, 23, 42, 0.7);
-  z-index: 10;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 40px;
-}
-
-.logo {
-  font-size: 2rem;
-  filter: drop-shadow(0 0 8px rgba(255, 77, 77, 0.4));
-  animation: float 4s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
-
-.brand-text h1 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.brand-text .subtitle {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-.nav-menu {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex-grow: 1;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition: var(--transition-fast);
-}
-
-.nav-item:hover, .nav-item.active {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.nav-item.active {
-  border-left: 3px solid var(--primary);
-  background: linear-gradient(90deg, rgba(255, 77, 77, 0.1) 0%, transparent 100%);
-}
-
-.user-profile {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border-color);
-}
-
-.avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 0.9rem;
-  flex-shrink: 0;
-}
-
-.avatar-sm {
-  width: 32px;
-  height: 32px;
-  font-size: 0.75rem;
-}
-
-.user-info {
-  display: flex;
-  flex-direction: column;
+.shell__main {
+  flex: 1 1 auto;
   min-width: 0;
-}
-
-.user-name {
-  font-size: 0.85rem;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.user-role {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.main-content {
-  flex-grow: 1;
-  padding: 24px;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  max-width: calc(100vw - 260px);
+  background: $color-bg-app;
 }
 
 .topbar {
+  flex: 0 0 $topbar-height;
+  height: $topbar-height;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 24px;
-  border-radius: 16px;
   gap: 16px;
+  padding: 0 20px;
+  background: #ffffff;
+  border-bottom: 1px solid $color-border;
+  z-index: $z-topbar;
 }
 
-.search-bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--text-secondary);
-  width: 300px;
-}
-
-.search-bar input {
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--text-primary);
-  font-family: var(--font-sans);
-  font-size: 0.9rem;
-  width: 100%;
-}
-
-.topbar-actions {
-  display: flex;
-  align-items: center;
-}
-
-.logged-user {
+.topbar__left,
+.topbar__right {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 6px 8px 6px 16px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border-color);
-}
-
-.logged-user-info {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
   min-width: 0;
 }
 
-.logged-user-name {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  white-space: nowrap;
-}
-
-.logged-user-email {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-.logout-btn {
-  background: rgba(255, 77, 77, 0.12);
-  color: var(--primary);
-  border: 1px solid rgba(255, 77, 77, 0.25);
-  border-radius: 999px;
-  padding: 8px 14px;
-  font-family: var(--font-sans);
-  font-size: 0.8rem;
-  font-weight: 600;
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: #ffffff;
+  color: $color-text-secondary;
   cursor: pointer;
-  transition: var(--transition-fast);
+  transition: background $transition-fast, color $transition-fast, border-color $transition-fast;
+
+  &:hover {
+    background: $color-bg-muted;
+    color: $color-primary;
+    border-color: $color-primary-muted;
+  }
 }
 
-.logout-btn:hover:not(:disabled) {
-  background: rgba(255, 77, 77, 0.2);
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(340px, 40vw);
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid $color-border;
+  border-radius: $radius-full;
+  background: $color-bg-muted;
+  color: $color-text-muted;
+
+  &:focus-within {
+    background: #ffffff;
+    border-color: $color-primary;
+    box-shadow: 0 0 0 3px $color-primary-soft;
+    color: $color-text-secondary;
+  }
+
+  input {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: $color-text;
+
+    &::placeholder {
+      color: $color-text-faint;
+    }
+  }
 }
 
-.logout-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
+.whoami {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.text-secondary { color: var(--secondary); }
-.text-sm { font-size: 0.875rem; }
-.w-full { width: 100%; }
-
-.content-body {
+.whoami__text {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  align-items: flex-end;
+  line-height: 1.15;
+
+  strong {
+    font-size: $font-sm;
+    font-weight: 600;
+    color: $color-text;
+  }
+
+  span {
+    font-size: $font-xs;
+    color: $color-text-muted;
+  }
+}
+
+.whoami__avatar {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: $radius-full;
+  background: $color-primary;
+  color: #fff;
+  font-size: $font-xs;
+  font-weight: 700;
+}
+
+.logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid $color-primary-muted;
+  border-radius: $radius-full;
+  background: $color-primary-soft;
+  color: $color-primary;
+  font-size: $font-sm;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: $color-primary-muted;
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+.shell__content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 24px;
 }
 
 @media (max-width: 900px) {
-  .logged-user-info {
+  .whoami__text {
     display: none;
+  }
+
+  .logout span {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .search {
+    display: none;
+  }
+
+  .shell__content {
+    padding: 16px;
   }
 }
 </style>

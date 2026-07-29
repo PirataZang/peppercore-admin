@@ -1,5 +1,5 @@
 <template>
-  <div ref="root" class="select-wrapper" v-bind="attrs">
+  <div ref="root" class="select-wrapper">
     <label v-if="label" class="select-label">{{ label }}</label>
 
     <div
@@ -278,15 +278,18 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
 .select-wrapper {
   position: relative;
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
+  box-sizing: border-box;
 }
 
 .select-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
   display: block;
 }
 
@@ -295,28 +298,27 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
   align-items: center;
   min-height: 42px;
   padding: 5px 10px 5px 12px;
-  border: 1.5px solid var(--border-color);
-  border-radius: 8px;
-  background: rgba(11, 15, 25, 0.5);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: #ffffff;
   cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
   user-select: none;
   gap: 8px;
 
   &:hover:not(.is-disabled) {
-    border-color: rgba(255, 77, 77, 0.35);
-    background: rgba(11, 15, 25, 0.7);
+    border-color: var(--color-border-strong);
   }
 
   &.is-open {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.12);
-    background: rgba(11, 15, 25, 0.8);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-soft);
+    background: #ffffff;
   }
 
   &.is-disabled {
-    background: rgba(11, 15, 25, 0.35);
-    opacity: 0.65;
+    background: var(--color-bg-muted);
+    opacity: 0.85;
     cursor: not-allowed;
     pointer-events: none;
   }
@@ -345,13 +347,13 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 14px;
-  color: var(--text-primary);
+  font-size: 0.875rem;
+  color: var(--color-text);
 }
 
 .control-placeholder {
-  color: var(--text-muted);
-  font-size: 14px;
+  color: var(--color-text-faint);
+  font-size: 0.875rem;
   flex: 1;
 }
 
@@ -367,9 +369,9 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: rgba(255, 77, 77, 0.15);
-  color: var(--primary);
-  border: 1px solid rgba(255, 77, 77, 0.25);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary-muted);
   border-radius: 6px;
   padding: 2px 8px;
   font-size: 12.5px;
@@ -381,13 +383,13 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
     border: none;
     background: transparent;
     cursor: pointer;
-    color: var(--primary);
+    color: var(--color-primary);
     padding: 0;
     border-radius: 3px;
     transition: color 0.15s ease;
 
     &:hover {
-      color: #fff;
+      color: var(--color-primary-hover);
     }
   }
 }
@@ -398,12 +400,12 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
   flex: 1;
   min-width: 60px;
   background: transparent;
-  font-size: 14px;
-  color: var(--text-primary);
+  font-size: 0.875rem;
+  color: var(--color-text);
   padding: 0;
 
   &::placeholder {
-    color: var(--text-muted);
+    color: var(--color-text-faint);
   }
 }
 
@@ -429,25 +431,25 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
 }
 
 .clear-btn {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text-primary);
+    background: var(--color-bg-muted);
+    color: var(--color-text);
   }
 }
 
 .link-btn {
-  color: var(--secondary);
+  color: var(--color-secondary);
 
   &:hover {
-    background: rgba(99, 102, 241, 0.15);
-    color: var(--secondary);
+    background: var(--color-secondary-soft, #eef2ff);
+    color: var(--color-secondary);
   }
 }
 
 .chevron-icon {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   display: flex;
   align-items: center;
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -463,10 +465,10 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
   left: 0;
   right: 0;
   z-index: 9999;
-  background: var(--bg-secondary);
-  border: 1.5px solid var(--border-color);
+  background: #ffffff;
+  border: 1px solid var(--color-border);
   border-radius: 10px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
 }
 
@@ -495,23 +497,23 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
   gap: 8px;
   padding: 9px 12px;
   cursor: pointer;
-  font-size: 14px;
-  color: var(--text-secondary);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
   transition: background 0.12s ease, color 0.12s ease;
 
   &:hover:not(.is-disabled) {
-    background: rgba(255, 77, 77, 0.08);
-    color: var(--text-primary);
+    background: var(--color-bg-muted);
+    color: var(--color-text);
   }
 
   &.is-selected {
-    background: rgba(255, 77, 77, 0.12);
-    color: var(--primary);
-    font-weight: 500;
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+    font-weight: 600;
   }
 
   &.is-disabled {
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     cursor: not-allowed;
 
     &:hover {
@@ -520,7 +522,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
   }
 
   &.empty {
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     font-style: italic;
     cursor: default;
     justify-content: center;
@@ -539,7 +541,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
 .option-checkbox {
   width: 16px;
   height: 16px;
-  border: 1.5px solid var(--border-color);
+  border: 1.5px solid var(--color-border);
   border-radius: 4px;
   display: inline-flex;
   align-items: center;
@@ -549,8 +551,8 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
   color: #fff;
 
   &.checked {
-    background: var(--primary);
-    border-color: var(--primary);
+    background: var(--color-primary);
+    border-color: var(--color-primary);
   }
 }
 
@@ -559,7 +561,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: var(--primary);
+  color: var(--color-primary);
 }
 
 .select-fade-enter-active,
