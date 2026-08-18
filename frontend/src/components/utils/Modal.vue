@@ -4,8 +4,8 @@
       <div
         class="modal-content"
         :style="{
-          width: typeof width === 'number' ? `${width}px` : width,
-          height: typeof height === 'number' ? `${height}px` : height,
+          width: typeof effectiveWidth === 'number' ? `${effectiveWidth}px` : effectiveWidth,
+          height: typeof effectiveHeight === 'number' ? `${effectiveHeight}px` : effectiveHeight,
         }"
       >
         <div class="modal-header">
@@ -31,7 +31,14 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
+
+/** sm = confirmações/formulários curtos · md = padrão de formulários maiores e listas · lg = telas densas */
+const SIZES = {
+  sm: { width: 440, height: 'auto' },
+  md: { width: 720, height: '80vh' },
+  lg: { width: 960, height: '85vh' },
+}
 
 const props = defineProps({
   modelValue: {
@@ -42,17 +49,26 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  /** sm | md | lg — usado quando width/height não são informados */
+  size: {
+    type: String,
+    default: 'sm',
+  },
   width: {
     type: [Number, String],
-    default: 400,
+    default: null,
   },
   height: {
     type: [Number, String],
-    default: 'auto',
+    default: null,
   },
 })
 
 const emit = defineEmits(['update:modelValue', 'close'])
+
+const activeSize = computed(() => SIZES[props.size] || SIZES.sm)
+const effectiveWidth = computed(() => props.width ?? activeSize.value.width)
+const effectiveHeight = computed(() => props.height ?? activeSize.value.height)
 
 const close = () => {
   emit('update:modelValue', false)
@@ -92,10 +108,10 @@ onUnmounted(() => {
 }
 
 .modal-content {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  background: #ffffff;
+  border: 1px solid var(--color-border);
   border-radius: 16px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
   max-width: 100%;
@@ -109,19 +125,19 @@ onUnmounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--color-border);
 
   .modal-title {
     margin: 0;
     font-size: 1.25rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--color-text);
   }
 
   .close-btn {
     background: transparent;
     border: none;
-    color: var(--text-muted);
+    color: var(--color-text-muted);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -131,8 +147,8 @@ onUnmounted(() => {
     transition: all 0.2s;
 
     &:hover {
-      color: var(--text-primary);
-      background: rgba(255, 255, 255, 0.08);
+      color: var(--color-text);
+      background: var(--color-bg-muted);
     }
   }
 }
@@ -141,13 +157,13 @@ onUnmounted(() => {
   padding: 24px;
   flex: 1;
   overflow-y: auto;
-  color: var(--text-secondary);
+  color: var(--color-text-secondary);
 }
 
 .modal-footer {
   padding: 16px 24px;
-  border-top: 1px solid var(--border-color);
-  background: rgba(11, 15, 25, 0.5);
+  border-top: 1px solid var(--color-border);
+  background: #ffffff;
   display: flex;
   justify-content: flex-end;
   gap: 12px;

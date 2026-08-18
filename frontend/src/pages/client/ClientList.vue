@@ -1,9 +1,9 @@
 <template>
   <div class="page fade-in">
     <PageHeader
-      title="Gerenciamento de Usuários"
-      subtitle="Lista oficial de administradores e usuários do sistema PepperCore."
-      icon="fa-solid fa-users"
+      title="Clientes"
+      subtitle="Cadastro de clientes atendidos pela PepperCore."
+      icon="fa-solid fa-address-book"
     />
 
     <div class="list-toolbar">
@@ -12,7 +12,7 @@
         type="search"
         v-model="searchQuery"
         @input="debounceSearch"
-        placeholder="Buscar usuários por nome ou email..."
+        placeholder="Buscar clientes por nome, e-mail ou telefone..."
       >
         <template #prefix>
           <i class="fa-solid fa-magnifying-glass" aria-hidden="true" />
@@ -24,28 +24,28 @@
           variant="create"
           icon="fa-solid fa-plus"
           label="Incluir"
-          @click="$router.push('/user/form')"
+          @click="$router.push('/client/form')"
         />
         <Button
           variant="edit"
           icon="fa-solid fa-pen-to-square"
           label="Alterar"
-          :disabled="selectedUsers.length !== 1"
+          :disabled="selectedClients.length !== 1"
           @click="editSelected"
         />
         <Button
           variant="danger"
           icon="fa-solid fa-trash-can"
-          :label="selectedUsers.length > 0 ? `Excluir (${selectedUsers.length})` : 'Excluir'"
-          :disabled="selectedUsers.length === 0"
-          @click="deleteSelectedUsers"
+          :label="selectedClients.length > 0 ? `Excluir (${selectedClients.length})` : 'Excluir'"
+          :disabled="selectedClients.length === 0"
+          @click="deleteSelectedClients"
         />
       </div>
     </div>
 
     <div class="grid-wrap">
       <AgGrid
-        :rowData="usersData"
+        :rowData="clientsData"
         :columnDefs="columnDefs"
         :currentPage="currentPage"
         :pageSize="pageSize"
@@ -63,7 +63,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import AgGrid from '../../components/utils/AgGrid.vue'
+import AgGrid from '@/components/utils/AgGrid.vue'
 import Button from '@/components/utils/Button.vue'
 import Input from '@/components/utils/Input.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
@@ -72,43 +72,30 @@ import { swal } from '@/plugins/swal'
 
 const router = useRouter()
 
-const usersData = ref([])
+const clientsData = ref([])
 const totalRows = ref(0)
 const currentPage = ref(1)
 const pageSize = ref(10)
 const searchQuery = ref('')
-const selectedUsers = ref([])
+const selectedClients = ref([])
 let searchTimeout = null
 
 const columnDefs = ref([
-  {
-    field: 'id',
-    headerName: 'ID',
-    width: 80,
-    sortable: true,
-    filter: 'agNumberColumnFilter',
-    cellClass: 'cell-center',
-  },
-  { field: 'name', headerName: 'Nome Completo', flex: 1, sortable: true, filter: true },
-  { field: 'email', headerName: 'E-mail Corporativo', flex: 1, sortable: true, filter: true },
-  {
-    field: 'created_at',
-    headerName: 'Data de Cadastro',
-    type: 'datetime',
-    width: 200,
-    sortable: true,
-  },
+  { field: 'name', headerName: 'Nome', flex: 1, sortable: true, filter: true },
+  { field: 'phone', headerName: 'Telefone', width: 160, sortable: true, filter: true },
+  { field: 'email', headerName: 'E-mail', flex: 1, sortable: true, filter: true },
+  { field: 'address', headerName: 'Endereço', flex: 1, sortable: true, filter: true },
 ])
 
-const fetchUsers = async () => {
+const fetchClients = async () => {
   try {
-    const url = `/api/users?page=${currentPage.value}&per_page=${pageSize.value}&search=${searchQuery.value}`
+    const url = `/api/clients?page=${currentPage.value}&per_page=${pageSize.value}&search=${searchQuery.value}`
     const response = await apiFetch(url).then((res) => res.json())
-    usersData.value = response.data
+    clientsData.value = response.data
     totalRows.value = response.total
-    selectedUsers.value = []
+    selectedClients.value = []
   } catch (err) {
-    console.error('Erro ao buscar lista de usuários:', err)
+    console.error('Erro ao buscar lista de clientes:', err)
   }
 }
 
@@ -116,60 +103,60 @@ const debounceSearch = () => {
   clearTimeout(searchTimeout)
   searchTimeout = setTimeout(() => {
     currentPage.value = 1
-    fetchUsers()
+    fetchClients()
   }, 400)
 }
 
 const handlePageChange = (page) => {
   currentPage.value = page
-  fetchUsers()
+  fetchClients()
 }
 
 const handlePageSizeChange = (size) => {
   pageSize.value = size
   currentPage.value = 1
-  fetchUsers()
+  fetchClients()
 }
 
 const handleSelectionChange = (selection) => {
-  selectedUsers.value = selection
+  selectedClients.value = selection
 }
 
 const handleRowClick = (rowData) => {
-  router.push(`/user/form/${rowData.id}`)
+  router.push(`/client/form/${rowData.id}`)
 }
 
 const editSelected = () => {
-  if (selectedUsers.value.length !== 1) return
-  router.push(`/user/form/${selectedUsers.value[0].id}`)
+  if (selectedClients.value.length !== 1) return
+  router.push(`/client/form/${selectedClients.value[0].id}`)
 }
 
-const deleteSelectedUsers = async () => {
-  if (selectedUsers.value.length === 0) return
+const deleteSelectedClients = async () => {
+  if (selectedClients.value.length === 0) return
 
-  const targets = [...selectedUsers.value]
+  const targets = [...selectedClients.value]
   const ok = await swal.confirmDelete({
     count: targets.length,
-    entity: 'usuário',
-    entityPlural: 'usuários',
+    entity: 'cliente',
+    entityPlural: 'clientes',
   })
   if (!ok) return
 
   try {
-    for (const user of targets) {
-      await apiFetch(`/api/users/${user.id}`, { method: 'DELETE' }).then((res) => res.json())
+    for (const client of targets) {
+      await apiFetch(`/api/clients/${client.id}`, { method: 'DELETE' }).then((res) => res.json())
     }
-    await fetchUsers()
+    await fetchClients()
     swal.toastSuccess(
-      targets.length > 1 ? 'Usuários excluídos com sucesso!' : 'Usuário excluído com sucesso!',
+      targets.length > 1 ? 'Clientes excluídos com sucesso!' : 'Cliente excluído com sucesso!',
     )
   } catch (err) {
-    console.error('Falha ao excluir usuários:', err)
-    swal.toastError('Falha ao excluir usuário(s).')
+    console.error('Falha ao excluir clientes:', err)
+    swal.toastError('Falha ao excluir cliente(s).')
   }
 }
 
-onMounted(fetchUsers)
+onMounted(fetchClients)
 </script>
 
 <style scoped>

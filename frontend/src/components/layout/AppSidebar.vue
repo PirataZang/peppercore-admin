@@ -7,7 +7,7 @@
   >
     <div class="sidebar__panel">
       <div class="brand">
-        <div class="brand__mark" aria-hidden="true">🌶️</div>
+        <div class="brand__mark" aria-hidden="true"><i class="fa-solid fa-pepper-hot" /></div>
         <div v-show="isExpanded" class="brand__text">
           <strong>PepperCore</strong>
           <span>Admin Console</span>
@@ -63,6 +63,18 @@ const menuItems = computed(() => [
     name: 'Dashboard',
     route: '/dashboard',
     icon: '<i class="fa-solid fa-gauge-high"></i>',
+    children: [],
+  },
+  {
+    name: 'Projetos',
+    route: '/project',
+    icon: '<i class="fa-solid fa-diagram-project"></i>',
+    children: [],
+  },
+  {
+    name: 'Clientes',
+    route: '/client',
+    icon: '<i class="fa-solid fa-address-book"></i>',
     children: [],
   },
   {
@@ -193,7 +205,8 @@ watch(
   place-items: center;
   border-radius: $radius-md;
   background: $color-primary-soft;
-  font-size: 1.35rem;
+  color: $color-primary;
+  font-size: 1.15rem;
 }
 
 .brand__text {

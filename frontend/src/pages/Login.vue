@@ -2,7 +2,7 @@
   <div class="login-page">
     <div class="login-card">
       <div class="login-header">
-        <span class="logo" aria-hidden="true">🌶️</span>
+        <span class="logo" aria-hidden="true"><i class="fa-solid fa-pepper-hot" /></span>
         <div>
           <h1>PepperCore Admin</h1>
           <p>Entre com suas credenciais para acessar o console.</p>
@@ -114,7 +114,8 @@ const handleSubmit = async () => {
   place-items: center;
   border-radius: 14px;
   background: var(--color-primary-soft);
-  font-size: 1.75rem;
+  color: var(--color-primary);
+  font-size: 1.5rem;
 }
 
 .login-header h1 {

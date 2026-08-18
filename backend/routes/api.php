@@ -1,6 +1,10 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +22,30 @@ Route::middleware('auth')->group(function () {
         Route::put('/{id}', [UserController::class, 'update']);
         Route::delete('/{id}', [UserController::class, 'delete']);
     });
+
+    Route::prefix('clients')->group(function () {
+        Route::get('/', [ClientController::class, 'list']);
+        Route::get('/{id}', [ClientController::class, 'index']);
+        Route::post('/', [ClientController::class, 'create']);
+        Route::put('/{id}', [ClientController::class, 'update']);
+        Route::delete('/{id}', [ClientController::class, 'delete']);
+    });
+
+    Route::prefix('projects')->group(function () {
+        Route::get('/', [ProjectController::class, 'list']);
+        Route::get('/summary', [ProjectController::class, 'summary']);
+        Route::get('/{id}', [ProjectController::class, 'index']);
+        Route::post('/', [ProjectController::class, 'create']);
+        Route::put('/{id}', [ProjectController::class, 'update']);
+        Route::delete('/{id}', [ProjectController::class, 'delete']);
+
+        Route::get('/{id}/transactions', [TransactionController::class, 'index']);
+        Route::get('/{id}/transactions/summary', [TransactionController::class, 'summary']);
+        Route::post('/{id}/transactions', [TransactionController::class, 'store']);
+        Route::delete('/{id}/transactions/{transactionId}', [TransactionController::class, 'destroy']);
+    });
+
+    Route::get('/activity-log', [ActivityLogController::class, 'index']);
 
     Route::get('/status', function () {
         $dbConnected = false;

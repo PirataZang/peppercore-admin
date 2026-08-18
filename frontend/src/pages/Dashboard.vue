@@ -5,7 +5,73 @@
         <h2>Ambiente Docker PepperCore Ativo!</h2>
         <p>Sua stack local está configurada. Gerencie os containers de Vue, Laravel, Postgres e Redis diretamente deste console.</p>
       </div>
-      <span class="banner-emoji">🚀</span>
+      <i class="fa-solid fa-circle-check banner-icon" aria-hidden="true" />
+    </div>
+
+    <!-- Projects Summary -->
+    <div class="section-head">
+      <h3 class="section-title">Projetos</h3>
+      <button @click="fetchSummary" class="action-btn-primary" :disabled="summaryLoading">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" :class="{ 'spin': summaryLoading }"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+        {{ summaryLoading ? 'Atualizando...' : 'Atualizar' }}
+      </button>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card glass-panel">
+        <span class="kpi-label">Projetos Ativos</span>
+        <span class="kpi-value">{{ summary?.total ?? '—' }}</span>
+      </div>
+      <div class="kpi-card glass-panel">
+        <span class="kpi-label">Receita Mensal</span>
+        <span class="kpi-value">{{ formatMoney(summary?.monthly_revenue) }}</span>
+      </div>
+      <div class="kpi-card glass-panel">
+        <span class="kpi-label">Pagamentos em Atraso</span>
+        <span class="kpi-value" :class="{ 'is-danger': summary?.overdue_count }">{{ summary?.overdue_count ?? '—' }}</span>
+      </div>
+      <div class="kpi-card glass-panel">
+        <span class="kpi-label">Próximo Vencimento</span>
+        <span class="kpi-value kpi-value--sm">{{ nextDueLabel }}</span>
+      </div>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card glass-panel">
+        <h4>Projetos por Tipo</h4>
+        <p v-if="!summary?.total" class="empty-note">Nenhum projeto cadastrado ainda.</p>
+        <EChart v-else :option="typeChartOption" height="260px" />
+      </div>
+      <div class="chart-card glass-panel">
+        <h4>Valor Mensal por Projeto</h4>
+        <p v-if="!summary?.values?.length" class="empty-note">Nenhum projeto cadastrado ainda.</p>
+        <EChart v-else :option="valueChartOption" height="260px" />
+      </div>
+    </div>
+
+    <div class="due-panel glass-panel">
+      <h4>Próximos Vencimentos</h4>
+      <p v-if="!summary?.upcoming_due?.length" class="empty-note">Nenhum vencimento cadastrado.</p>
+      <table v-else class="due-table">
+        <thead>
+          <tr>
+            <th>Projeto</th>
+            <th>Cliente</th>
+            <th>Dia</th>
+            <th>Valor</th>
+            <th>Vence em</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="p in summary.upcoming_due" :key="p.id">
+            <td>{{ p.name }}</td>
+            <td>{{ p.client_name }}</td>
+            <td>Dia {{ p.due_day }}</td>
+            <td>{{ formatMoney(p.monthly_value) }}</td>
+            <td>{{ p.days_until_due === 0 ? 'Hoje' : `${p.days_until_due} dia(s)` }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <!-- Service Status Grid -->
@@ -94,12 +160,109 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { apiFetch } from '@/services/api'
+import EChart from '@/components/ui/EChart.vue'
+
+const CHART_AXIS_COLOR = '#64748b'
+const CHART_GRID_COLOR = '#e2e8f0'
+const CHART_LABEL_COLOR = '#0f172a'
 
 export default {
   name: 'Dashboard',
+  components: { EChart },
   setup() {
+    const summary = ref(null)
+    const summaryLoading = ref(false)
+
+    const formatMoney = (value) => {
+      if (!value) return 'R$ 0,00'
+      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
+    }
+
+    const nextDueLabel = computed(() => {
+      const next = summary.value?.upcoming_due?.[0]
+      if (!next) return '—'
+      const when = next.days_until_due === 0 ? 'hoje' : `em ${next.days_until_due}d`
+      return `${next.name} · ${when}`
+    })
+
+    const typeChartOption = computed(() => {
+      const byType = summary.value?.by_type || { site: 0, sistema: 0, host: 0 }
+      return {
+        grid: { left: 8, right: 16, top: 24, bottom: 28, containLabel: true },
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        xAxis: {
+          type: 'category',
+          data: ['Site', 'Sistema', 'Host'],
+          axisLine: { lineStyle: { color: CHART_GRID_COLOR } },
+          axisTick: { show: false },
+          axisLabel: { color: CHART_AXIS_COLOR },
+        },
+        yAxis: {
+          type: 'value',
+          minInterval: 1,
+          splitLine: { lineStyle: { color: CHART_GRID_COLOR } },
+          axisLabel: { color: CHART_AXIS_COLOR },
+        },
+        series: [{
+          type: 'bar',
+          data: [byType.site, byType.sistema, byType.host],
+          barMaxWidth: 24,
+          itemStyle: { color: '#4f46e5', borderRadius: [4, 4, 0, 0] },
+          label: { show: true, position: 'top', color: CHART_LABEL_COLOR, fontWeight: 600 },
+        }],
+      }
+    })
+
+    const valueChartOption = computed(() => {
+      const values = summary.value?.values || []
+      return {
+        grid: { left: 8, right: 16, top: 24, bottom: 48, containLabel: true },
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: { type: 'shadow' },
+          valueFormatter: (v) => formatMoney(v),
+        },
+        xAxis: {
+          type: 'category',
+          data: values.map((v) => v.name),
+          axisLine: { lineStyle: { color: CHART_GRID_COLOR } },
+          axisTick: { show: false },
+          axisLabel: { color: CHART_AXIS_COLOR, rotate: values.length > 4 ? 20 : 0 },
+        },
+        yAxis: {
+          type: 'value',
+          splitLine: { lineStyle: { color: CHART_GRID_COLOR } },
+          axisLabel: { color: CHART_AXIS_COLOR, formatter: (v) => `R$ ${v}` },
+        },
+        series: [{
+          type: 'bar',
+          data: values.map((v) => v.monthly_value),
+          barMaxWidth: 24,
+          itemStyle: { color: '#e11d48', borderRadius: [4, 4, 0, 0] },
+          label: {
+            show: true,
+            position: 'top',
+            color: CHART_LABEL_COLOR,
+            fontWeight: 600,
+            formatter: (p) => formatMoney(p.value),
+          },
+        }],
+      }
+    })
+
+    const fetchSummary = async () => {
+      summaryLoading.value = true
+      try {
+        summary.value = await apiFetch('/api/projects/summary').then((res) => res.json())
+      } catch (err) {
+        addLog('frontend', 'error', 'Não foi possível carregar o resumo de projetos.')
+      } finally {
+        summaryLoading.value = false
+      }
+    }
+
     const testing = ref(false)
     const laravelStatus = ref('pending')
     const laravelStatusText = ref('Checando...')
@@ -179,9 +342,17 @@ export default {
     onMounted(() => {
       addLog('frontend', 'info', 'Painel de controle PepperCore carregado.')
       testAllConnections()
+      fetchSummary()
     })
 
     return {
+      summary,
+      summaryLoading,
+      formatMoney,
+      nextDueLabel,
+      typeChartOption,
+      valueChartOption,
+      fetchSummary,
       testing,
       laravelStatus,
       laravelStatusText,
@@ -236,9 +407,10 @@ export default {
   line-height: 1.5;
 }
 
-.banner-emoji {
-  font-size: 3rem;
-  filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.4));
+.banner-icon {
+  font-size: 2.75rem;
+  color: var(--success);
+  filter: drop-shadow(0 0 10px rgba(5, 150, 105, 0.35));
 }
 
 .section-head {
@@ -288,6 +460,97 @@ export default {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.kpi-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 20px;
+  border-radius: 16px;
+}
+
+.kpi-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.kpi-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.kpi-value--sm {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.kpi-value.is-danger {
+  color: var(--color-danger);
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.chart-card {
+  padding: 20px;
+  border-radius: 16px;
+}
+
+.chart-card h4,
+.due-panel h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.due-panel {
+  padding: 20px;
+  border-radius: 16px;
+}
+
+.empty-note {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 24px 0;
+  text-align: center;
+}
+
+.due-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.due-table th {
+  text-align: left;
+  padding: 8px 12px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.due-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.due-table tr:last-child td {
+  border-bottom: 0;
 }
 
 .status-grid {

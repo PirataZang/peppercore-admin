@@ -5,6 +5,11 @@ import Login from '@/pages/Login.vue'
 import Dashboard from '@/pages/Dashboard.vue'
 import UserList from '@/pages/user/UserList.vue'
 import UserForm from '@/pages/user/UserForm.vue'
+import ProjectList from '@/pages/project/ProjectList.vue'
+import ProjectForm from '@/pages/project/ProjectForm.vue'
+import ProjectDetail from '@/pages/project/ProjectDetail.vue'
+import ClientList from '@/pages/client/ClientList.vue'
+import ClientForm from '@/pages/client/ClientForm.vue'
 
 const routes = [
   {
@@ -40,6 +45,44 @@ const routes = [
         path: 'user/form/:id',
         name: 'UserEdit',
         component: UserForm,
+        props: true,
+      },
+      {
+        path: 'project',
+        name: 'ProjectList',
+        component: ProjectList,
+      },
+      {
+        path: 'project/form',
+        name: 'ProjectCreate',
+        component: ProjectForm,
+      },
+      {
+        path: 'project/form/:id',
+        name: 'ProjectEdit',
+        component: ProjectForm,
+        props: true,
+      },
+      {
+        path: 'project/:id',
+        name: 'ProjectDetail',
+        component: ProjectDetail,
+        props: true,
+      },
+      {
+        path: 'client',
+        name: 'ClientList',
+        component: ClientList,
+      },
+      {
+        path: 'client/form',
+        name: 'ClientCreate',
+        component: ClientForm,
+      },
+      {
+        path: 'client/form/:id',
+        name: 'ClientEdit',
+        component: ClientForm,
         props: true,
       },
     ],

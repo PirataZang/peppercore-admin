@@ -1,7 +1,6 @@
 <template>
   <div class="shell">
     <AppSidebar
-      :visible="sidebarVisible"
       :user-name="auth.user?.name || 'Usuário'"
       :user-email="auth.user?.email || ''"
       :user-initials="auth.userInitials"
@@ -10,16 +9,6 @@
     <div class="shell__main">
       <header class="topbar">
         <div class="topbar__left">
-          <button
-            type="button"
-            class="icon-btn"
-            :aria-label="sidebarVisible ? 'Ocultar menu' : 'Exibir menu'"
-            :aria-expanded="sidebarVisible"
-            @click="sidebarVisible = !sidebarVisible"
-          >
-            <i class="fa-solid fa-bars" aria-hidden="true" />
-          </button>
-
           <label class="search">
             <i class="fa-solid fa-magnifying-glass" aria-hidden="true" />
             <input type="search" placeholder="Buscar recursos..." />
@@ -56,7 +45,6 @@ import AppSidebar from '@/components/layout/AppSidebar.vue'
 
 const auth = useAuthStore()
 const loggingOut = ref(false)
-const sidebarVisible = ref(true)
 
 const handleLogout = async () => {
   loggingOut.value = true
@@ -108,25 +96,6 @@ onUnmounted(() => auth.stopPolling())
   align-items: center;
   gap: 12px;
   min-width: 0;
-}
-
-.icon-btn {
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
-  border: 1px solid $color-border;
-  border-radius: $radius-md;
-  background: #ffffff;
-  color: $color-text-secondary;
-  cursor: pointer;
-  transition: background $transition-fast, color $transition-fast, border-color $transition-fast;
-
-  &:hover {
-    background: $color-bg-muted;
-    color: $color-primary;
-    border-color: $color-primary-muted;
-  }
 }
 
 .search {
