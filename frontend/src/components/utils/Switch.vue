@@ -5,7 +5,12 @@
     <div
       class="switch-wrapper"
       :class="{ disabled }"
+      role="switch"
+      tabindex="0"
+      :aria-checked="modelValue"
+      :aria-disabled="disabled || undefined"
       @click="toggle"
+      @keydown.enter.space.prevent="toggle"
     >
       <div class="switch" :class="{ 'is-checked': modelValue }">
         <div class="switch-handle"></div>
@@ -69,6 +74,12 @@ const toggle = () => {
   &.disabled {
     opacity: 0.6;
     cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+    border-radius: 999px;
   }
 }
 

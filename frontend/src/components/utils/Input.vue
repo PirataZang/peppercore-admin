@@ -16,6 +16,24 @@
       </span>
 
       <input
+        v-if="activeMask"
+        :id="inputId"
+        :value="displayValue"
+        class="field-input"
+        :class="{ 'is-small': small }"
+        :type="type"
+        :name="inputName"
+        :placeholder="placeholder"
+        :disabled="disabled"
+        :autocomplete="autocompleteValue"
+        inputmode="numeric"
+        v-bind="inputAttrs"
+        @input="handleMaskedInput"
+        @focus="isFocused = true"
+        @blur="isFocused = false"
+      />
+      <input
+        v-else
         :id="inputId"
         v-model="model"
         class="field-input"
@@ -38,7 +56,8 @@
 </template>
 
 <script setup>
-import { computed, useAttrs, useSlots, ref } from 'vue'
+import { computed, useAttrs, useSlots, ref, nextTick } from 'vue'
+import { MASKS } from '@/utils/masks'
 
 // class="col-6" cai no root automaticamente (inheritAttrs default)
 const props = defineProps({
@@ -51,12 +70,42 @@ const props = defineProps({
   name: { type: String, default: null },
   autocomplete: { type: String, default: null },
   id: { type: String, default: '' },
+  /** cpf | cnpj | cpf-cnpj | phone | cep — modelValue guarda sempre o valor sem máscara */
+  mask: { type: String, default: '' },
 })
 
 const model = defineModel({ default: '' })
 const attrs = useAttrs()
 const slots = useSlots()
 const isFocused = ref(false)
+
+const activeMask = computed(() => MASKS[props.mask] || null)
+const displayValue = computed(() => (activeMask.value ? activeMask.value.format(model.value) : model.value))
+
+const handleMaskedInput = (event) => {
+  const input = event.target
+  const digitsBeforeCursor = onlyDigitsBefore(input.value, input.selectionStart)
+
+  model.value = activeMask.value.unmask(input.value)
+
+  nextTick(() => {
+    input.value = displayValue.value
+    input.selectionStart = input.selectionEnd = cursorPositionAfterDigits(input.value, digitsBeforeCursor)
+  })
+}
+
+function onlyDigitsBefore(value, cursor) {
+  return value.slice(0, cursor).replace(/\D/g, '').length
+}
+
+function cursorPositionAfterDigits(formatted, digitCount) {
+  let seen = 0
+  for (let i = 0; i < formatted.length; i++) {
+    if (seen === digitCount) return i
+    if (/\d/.test(formatted[i])) seen++
+  }
+  return formatted.length
+}
 
 const hasPrefix = computed(() => !!slots.prefix)
 const hasSuffix = computed(() => !!slots.suffix)

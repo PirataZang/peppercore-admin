@@ -10,6 +10,9 @@ import ProjectForm from '@/pages/project/ProjectForm.vue'
 import ProjectDetail from '@/pages/project/ProjectDetail.vue'
 import ClientList from '@/pages/client/ClientList.vue'
 import ClientForm from '@/pages/client/ClientForm.vue'
+import TransactionList from '@/pages/transaction/TransactionList.vue'
+import TransactionForm from '@/pages/transaction/TransactionForm.vue'
+import Settings from '@/pages/settings/Settings.vue'
 
 const routes = [
   {
@@ -84,6 +87,27 @@ const routes = [
         name: 'ClientEdit',
         component: ClientForm,
         props: true,
+      },
+      {
+        path: 'financial/transactions',
+        name: 'TransactionList',
+        component: TransactionList,
+      },
+      {
+        path: 'financial/transactions/form',
+        name: 'TransactionCreate',
+        component: TransactionForm,
+      },
+      {
+        path: 'financial/transactions/form/:id',
+        name: 'TransactionEdit',
+        component: TransactionForm,
+        props: true,
+      },
+      {
+        path: 'settings',
+        name: 'Settings',
+        component: Settings,
       },
     ],
   },

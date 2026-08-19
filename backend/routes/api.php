@@ -3,14 +3,18 @@
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\IntegrationSettingController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/webhooks/mercado-pago', [WebhookController::class, 'mercadoPago']);
 
 Route::middleware('auth')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
@@ -43,9 +47,32 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}/transactions/summary', [TransactionController::class, 'summary']);
         Route::post('/{id}/transactions', [TransactionController::class, 'store']);
         Route::delete('/{id}/transactions/{transactionId}', [TransactionController::class, 'destroy']);
+        Route::post('/{id}/transactions/{transactionId}/charge', [TransactionController::class, 'charge']);
+    });
+
+    Route::prefix('transactions')->group(function () {
+        Route::get('/', [TransactionController::class, 'list']);
+        Route::post('/', [TransactionController::class, 'storeStandalone']);
+        Route::get('/{id}', [TransactionController::class, 'show']);
+        Route::put('/{id}', [TransactionController::class, 'updateStandalone']);
+        Route::delete('/{id}', [TransactionController::class, 'destroyStandalone']);
+        Route::post('/{id}/charge', [TransactionController::class, 'chargeStandalone']);
     });
 
     Route::get('/activity-log', [ActivityLogController::class, 'index']);
+
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'index']);
+        Route::post('/read-all', [NotificationController::class, 'markAllAsRead']);
+        Route::post('/{id}/read', [NotificationController::class, 'markAsRead']);
+    });
+
+    Route::prefix('integration-settings')->group(function () {
+        Route::get('/', [IntegrationSettingController::class, 'index']);
+        Route::put('/{provider}', [IntegrationSettingController::class, 'update']);
+    });
+
+    Route::get('/mercado-pago/public-key', [TransactionController::class, 'mercadoPagoPublicKey']);
 
     Route::get('/status', function () {
         $dbConnected = false;

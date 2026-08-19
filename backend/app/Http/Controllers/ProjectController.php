@@ -88,6 +88,7 @@ class ProjectController extends Controller
             'name' => "{$required}|string|max:255",
             'type' => "{$required}|in:site,sistema,host",
             'domain' => 'sometimes|nullable|string|max:255',
+            'client_id' => 'sometimes|nullable|integer|exists:clients,id',
             'client_name' => "{$required}|string|max:255",
             'client_contact' => 'sometimes|nullable|string|max:255',
             'monthly_value' => 'sometimes|nullable|numeric|min:0',

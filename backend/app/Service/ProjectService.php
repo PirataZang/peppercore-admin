@@ -31,7 +31,7 @@ class ProjectService
      */
     public function index(int $id): Project
     {
-        return Project::findOrFail($id);
+        return Project::with('client')->findOrFail($id);
     }
 
     /**

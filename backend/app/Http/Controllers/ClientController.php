@@ -43,13 +43,7 @@ class ClientController extends Controller
      */
     public function create(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'sometimes|nullable|string|max:30',
-            'email' => 'sometimes|nullable|string|email|max:255',
-            'address' => 'sometimes|nullable|string|max:255',
-            'description' => 'sometimes|nullable|string',
-        ]);
+        $validated = $request->validate($this->rules());
 
         $client = $this->clientService->create($validated);
 
@@ -61,13 +55,7 @@ class ClientController extends Controller
      */
     public function update(Request $request, int $id): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'phone' => 'sometimes|nullable|string|max:30',
-            'email' => 'sometimes|nullable|string|email|max:255',
-            'address' => 'sometimes|nullable|string|max:255',
-            'description' => 'sometimes|nullable|string',
-        ]);
+        $validated = $request->validate($this->rules(sometimes: true));
 
         $client = $this->clientService->update($id, $validated);
 
@@ -82,5 +70,25 @@ class ClientController extends Controller
         $this->clientService->delete($id);
 
         return response()->json(['message' => 'Client deleted successfully']);
+    }
+
+    private function rules(bool $sometimes = false): array
+    {
+        $required = $sometimes ? 'sometimes' : 'required';
+
+        return [
+            'name' => "{$required}|string|max:255",
+            'phone' => 'sometimes|nullable|string|max:30',
+            'email' => 'sometimes|nullable|string|email|max:255',
+            'address' => 'sometimes|nullable|string|max:255',
+            'description' => 'sometimes|nullable|string',
+            'document' => 'sometimes|nullable|string|max:20',
+            'zip_code' => 'sometimes|nullable|string|max:9',
+            'street_name' => 'sometimes|nullable|string|max:255',
+            'street_number' => 'sometimes|nullable|string|max:20',
+            'neighborhood' => 'sometimes|nullable|string|max:255',
+            'city' => 'sometimes|nullable|string|max:255',
+            'state' => 'sometimes|nullable|string|size:2',
+        ];
     }
 }

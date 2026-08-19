@@ -28,6 +28,26 @@ export function paymentBadge(status) {
   }
 }
 
+export const PAYMENT_METHOD_OPTIONS = [
+  { value: 'pix', label: 'Pix' },
+  { value: 'boleto', label: 'Boleto' },
+  { value: 'credit_card', label: 'Cartão de Crédito' },
+]
+
+export const TRANSACTION_STATUS_OPTIONS = [
+  { value: 'pending', label: 'Pendente' },
+  { value: 'paid', label: 'Pago' },
+  { value: 'failed', label: 'Falhou' },
+  { value: 'refunded', label: 'Reembolsado' },
+]
+
+export function transactionBadge(t) {
+  if (t.status === 'failed') return { label: 'Falhou', variant: 'danger' }
+  if (t.status === 'refunded') return { label: 'Reembolsado', variant: 'neutral' }
+  if (t.status === 'pending') return { label: 'Pendente', variant: 'neutral' }
+  return t.paid_late ? { label: 'Pago com atraso', variant: 'warning' } : { label: 'Pago em dia', variant: 'success' }
+}
+
 const CONTAINER_VARIANTS = {
   running: 'success',
   restarting: 'warning',

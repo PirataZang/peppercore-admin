@@ -1,0 +1,31 @@
+{
+  "project": "peppercore-admin",
+  "tunnels": [
+    {
+      "name": "api",
+      "url": "http://127.0.0.1:8001",
+      "port": 8001,
+      "mode": "http2",
+      "created_at": "2026-08-18T20:36:49.123495167-03:00"
+    }
+  ],
+  "history": [
+    {
+      "name": "api",
+      "target": "http://127.0.0.1:8001",
+      "mode": "http2",
+      "started": "2026-08-18T20:37:00.728033002-03:00",
+      "stopped": "0001-01-01T00:00:00Z",
+      "url": "https://asylum-stockings-ricky-jaguar.trycloudflare.com"
+    },
+    {
+      "name": "site",
+      "target": "http://127.0.0.1:8000",
+      "mode": "quick",
+      "started": "2026-08-18T20:25:08.172602959-03:00",
+      "stopped": "0001-01-01T00:00:00Z",
+      "url": "https://hotel-michael-instantly-plants.trycloudflare.com"
+    }
+  ],
+  "updated_at": "2026-08-18T20:37:00.728035842-03:00"
+}

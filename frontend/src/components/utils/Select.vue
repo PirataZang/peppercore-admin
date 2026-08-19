@@ -3,6 +3,7 @@
     <label v-if="label" class="select-label">{{ label }}</label>
 
     <div
+      ref="controlRef"
       class="select-control"
       :class="{
         'is-open': isOpen,
@@ -77,42 +78,49 @@
       </div>
     </div>
 
-    <Transition name="select-fade">
-      <div v-if="isOpen" class="select-dropdown">
-        <ul class="options-list">
-          <li
-            v-for="opt in filteredOptions"
-            :key="opt.value"
-            class="option-item"
-            :class="{
-              'is-selected': isSelected(opt),
-              'is-disabled': opt.disabled,
-            }"
-            @click.stop="select(opt)"
-          >
-            <span v-if="multiple" class="option-checkbox" :class="{ checked: isSelected(opt) }">
-              <svg v-if="isSelected(opt)" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                <polyline points="20 6 9 17 4 12"></polyline>
+    <Teleport to="body">
+      <Transition name="select-fade">
+        <div
+          v-if="isOpen"
+          ref="dropdownRef"
+          class="select-dropdown"
+          :style="{ top: `${dropdownPos.top}px`, left: `${dropdownPos.left}px`, width: `${dropdownPos.width}px` }"
+        >
+          <ul class="options-list">
+            <li
+              v-for="opt in filteredOptions"
+              :key="opt.value"
+              class="option-item"
+              :class="{
+                'is-selected': isSelected(opt),
+                'is-disabled': opt.disabled,
+              }"
+              @click.stop="select(opt)"
+            >
+              <span v-if="multiple" class="option-checkbox" :class="{ checked: isSelected(opt) }">
+                <svg v-if="isSelected(opt)" xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </span>
+              <span v-else-if="isSelected(opt)" class="option-check-single">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </span>
+              <span class="option-label">{{ opt.label }}</span>
+            </li>
+            <li v-if="!filteredOptions.length" class="option-item empty">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
               </svg>
-            </span>
-            <span v-else-if="isSelected(opt)" class="option-check-single">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            </span>
-            <span class="option-label">{{ opt.label }}</span>
-          </li>
-          <li v-if="!filteredOptions.length" class="option-item empty">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="12"></line>
-              <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
-            Nenhuma opção encontrada
-          </li>
-        </ul>
-      </div>
-    </Transition>
+              Nenhuma opção encontrada
+            </li>
+          </ul>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -167,7 +175,20 @@ const router = useRouter()
 const isOpen = ref(false)
 const searchTerm = ref('')
 const root = ref(null)
+const controlRef = ref(null)
+const dropdownRef = ref(null)
 const searchInputRef = ref(null)
+const dropdownPos = ref({ top: 0, left: 0, width: 0 })
+
+function updateDropdownPos() {
+  if (!controlRef.value) return
+  const rect = controlRef.value.getBoundingClientRect()
+  dropdownPos.value = {
+    top: rect.bottom + 6,
+    left: rect.left,
+    width: rect.width,
+  }
+}
 
 const selectedValues = ref(
   props.multiple
@@ -243,9 +264,12 @@ function handleDisplayClick(event) {
   if (isOpen.value && searchInputRef.value && event.target === searchInputRef.value) return
 
   isOpen.value = !isOpen.value
-  if (isOpen.value && props.search) {
-    searchTerm.value = ''
-    nextTick(() => searchInputRef.value?.focus())
+  if (isOpen.value) {
+    updateDropdownPos()
+    if (props.search) {
+      searchTerm.value = ''
+      nextTick(() => searchInputRef.value?.focus())
+    }
   } else {
     searchTerm.value = ''
   }
@@ -265,13 +289,26 @@ function navigateToLink() {
 }
 
 function handleClickOutside(event) {
-  if (root.value && !root.value.contains(event.target)) {
-    close()
-  }
+  if (root.value?.contains(event.target)) return
+  if (dropdownRef.value?.contains(event.target)) return
+  close()
 }
 
-onMounted(() => document.addEventListener('mousedown', handleClickOutside))
-onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutside))
+function handleScrollOrResize() {
+  if (isOpen.value) close()
+}
+
+onMounted(() => {
+  document.addEventListener('mousedown', handleClickOutside)
+  window.addEventListener('scroll', handleScrollOrResize, true)
+  window.addEventListener('resize', handleScrollOrResize)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('mousedown', handleClickOutside)
+  window.removeEventListener('scroll', handleScrollOrResize, true)
+  window.removeEventListener('resize', handleScrollOrResize)
+})
 </script>
 
 <style scoped lang="scss">
@@ -460,10 +497,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', handleClickOutsi
 }
 
 .select-dropdown {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
+  position: fixed;
   z-index: 9999;
   background: #ffffff;
   border: 1px solid var(--color-border);

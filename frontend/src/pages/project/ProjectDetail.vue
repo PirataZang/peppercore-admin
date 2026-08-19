@@ -1,61 +1,72 @@
 <template>
   <div class="page fade-in">
-    <PageHeader
-      :title="project?.name || 'Projeto'"
-      :subtitle="project?.domain || 'Domínio não informado'"
-      icon="fa-solid fa-diagram-project"
-    >
-      <Button
-        variant="ghost"
-        icon="fa-solid fa-clock-rotate-left"
-        label="Histórico"
-        @click="activityLogOpen = true"
-      />
-      <Button
-        variant="secondary"
-        icon="fa-solid fa-pen-to-square"
-        label="Editar"
-        @click="$router.push(`/project/form/${projectId}`)"
-      />
-    </PageHeader>
-
     <div v-if="loadingProject" class="loading-state">
       <i class="fa-solid fa-spinner fa-spin" aria-hidden="true" />
       <span>Carregando projeto...</span>
     </div>
 
     <template v-else-if="project">
-      <div class="summary-card">
-        <div class="summary-badges">
+      <header class="project-header">
+        <div class="project-header__top">
+          <div class="project-header__identity">
+            <span class="project-header__icon" aria-hidden="true">
+              <i class="fa-solid fa-diagram-project" />
+            </span>
+            <div class="project-header__title">
+              <h1>{{ project.name }}</h1>
+              <p>
+                <i class="fa-solid fa-globe" aria-hidden="true" />
+                {{ project.domain || 'Domínio não informado' }}
+              </p>
+            </div>
+          </div>
+
+          <div class="project-header__actions">
+            <Button
+              variant="ghost"
+              icon="fa-solid fa-clock-rotate-left"
+              label="Histórico"
+              @click="activityLogOpen = true"
+            />
+            <Button
+              variant="secondary"
+              icon="fa-solid fa-pen-to-square"
+              label="Editar"
+              @click="$router.push(`/project/form/${projectId}`)"
+            />
+          </div>
+        </div>
+
+        <div class="project-header__badges">
           <StatusBadge :label="payment.label" :variant="payment.variant" />
           <StatusBadge :label="typeLabel(project.type)" variant="info" />
         </div>
 
-        <dl class="summary-grid">
-          <div class="summary-item">
-            <dt>Cliente</dt>
+        <dl class="project-header__stats">
+          <div class="stat">
+            <dt><i class="fa-solid fa-user" aria-hidden="true" /> Cliente</dt>
             <dd>{{ project.client_name }}</dd>
           </div>
-          <div class="summary-item">
-            <dt>Contato</dt>
+          <div class="stat">
+            <dt><i class="fa-solid fa-at" aria-hidden="true" /> Contato</dt>
             <dd>{{ project.client_contact || '—' }}</dd>
           </div>
-          <div class="summary-item">
-            <dt>Mensalidade</dt>
+          <div class="stat">
+            <dt><i class="fa-solid fa-sack-dollar" aria-hidden="true" /> Mensalidade</dt>
             <dd>{{ formatMoney(project.monthly_value) }}</dd>
           </div>
-          <div class="summary-item">
-            <dt>Vencimento</dt>
+          <div class="stat">
+            <dt><i class="fa-solid fa-calendar-day" aria-hidden="true" /> Vencimento</dt>
             <dd>{{ project.due_day ? `Dia ${project.due_day}` : '—' }}</dd>
           </div>
-          <div class="summary-item">
-            <dt>Último pagamento</dt>
+          <div class="stat">
+            <dt><i class="fa-solid fa-circle-check" aria-hidden="true" /> Último pagamento</dt>
             <dd>{{ formatDate(txSummary?.last_payment_at, true) }}</dd>
           </div>
         </dl>
 
-        <p v-if="project.description" class="summary-description">{{ project.description }}</p>
-      </div>
+        <p v-if="project.description" class="project-header__description">{{ project.description }}</p>
+      </header>
 
       <div class="tab-panel">
         <div class="tab-panel__header">
@@ -99,6 +110,11 @@
             <EChart v-else :option="monthlyChartOption" height="240px" />
           </div>
 
+          <p v-if="!canCharge" class="charge-warning">
+            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true" />
+            Para gerar cobranças (Pix, boleto ou cartão), vincule um cliente com CPF/CNPJ cadastrado a este projeto.
+          </p>
+
           <div class="history-list">
             <p v-if="!transactions.length" class="empty-note">Nenhum pagamento registrado ainda.</p>
             <table v-else class="data-table">
@@ -110,6 +126,7 @@
                   <th>Pago em</th>
                   <th>Status</th>
                   <th>Método</th>
+                  <th>Cobrança</th>
                   <th></th>
                 </tr>
               </thead>
@@ -122,6 +139,29 @@
                   <td><StatusBadge :label="transactionBadge(t).label" :variant="transactionBadge(t).variant" /></td>
                   <td>{{ t.payment_method || '—' }}</td>
                   <td>
+                    <a
+                      v-if="t.gateway_payload?.ticket_url"
+                      class="checkout-link__url"
+                      :href="t.gateway_payload.ticket_url"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true" />
+                      Ver cobrança
+                    </a>
+                    <span v-else-if="t.gateway_payload" class="link-empty">Pix/cartão</span>
+                    <span v-else class="link-empty">—</span>
+                  </td>
+                  <td class="row-actions">
+                    <Button
+                      v-if="t.status !== 'paid'"
+                      variant="ghost"
+                      size="sm"
+                      icon="fa-solid fa-link"
+                      :disabled="!canCharge"
+                      @click="chargeTransaction(t)"
+                      :title="canCharge ? (t.gateway_payload ? 'Gerar nova cobrança' : 'Gerar cobrança') : 'Vincule um cliente com CPF/CNPJ ao projeto para gerar cobranças'"
+                    />
                     <Button variant="ghost" size="sm" icon="fa-solid fa-trash-can" @click="deleteTransaction(t)" />
                   </td>
                 </tr>
@@ -151,6 +191,13 @@
     </Modal>
 
     <ActivityLogModal v-model="activityLogOpen" subject-type="project" :subject-id="projectId" />
+
+    <TransactionChargeModal
+      v-model="chargeModalOpen"
+      :transaction="chargingTransaction"
+      :charge-url="chargingTransaction ? `/api/projects/${projectId}/transactions/${chargingTransaction.id}/charge` : ''"
+      @charged="loadTransactions"
+    />
   </div>
 </template>
 
@@ -162,19 +209,12 @@ import Button from '@/components/utils/Button.vue'
 import Input from '@/components/utils/Input.vue'
 import Select from '@/components/utils/Select.vue'
 import Modal from '@/components/utils/Modal.vue'
-import PageHeader from '@/components/ui/PageHeader.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
 import EChart from '@/components/ui/EChart.vue'
 import ActivityLogModal from '@/components/ui/ActivityLogModal.vue'
-import { paymentBadge, typeLabel } from '@/config/projectStatus'
+import TransactionChargeModal from '@/pages/transaction/TransactionChargeModal.vue'
+import { paymentBadge, typeLabel, TRANSACTION_STATUS_OPTIONS, transactionBadge } from '@/config/projectStatus'
 import { swal } from '@/plugins/swal'
-
-const TRANSACTION_STATUS_OPTIONS = [
-  { value: 'pending', label: 'Pendente' },
-  { value: 'paid', label: 'Pago' },
-  { value: 'failed', label: 'Falhou' },
-  { value: 'refunded', label: 'Reembolsado' },
-]
 
 const STATUS_COLORS = {
   onTime: '#059669',
@@ -191,6 +231,7 @@ const activityLogOpen = ref(false)
 const project = ref(null)
 const loadingProject = ref(false)
 const payment = computed(() => paymentBadge(project.value?.payment_status))
+const canCharge = computed(() => !!project.value?.client?.document)
 
 const transactions = ref([])
 const txSummary = ref(null)
@@ -202,13 +243,6 @@ const punctualityLabel = computed(() => {
   const onTime = paid - (txSummary.value?.late_count || 0)
   return `${Math.round((onTime / paid) * 100)}%`
 })
-
-const transactionBadge = (t) => {
-  if (t.status === 'failed') return { label: 'Falhou', variant: 'danger' }
-  if (t.status === 'refunded') return { label: 'Reembolsado', variant: 'neutral' }
-  if (t.status === 'pending') return { label: 'Pendente', variant: 'neutral' }
-  return t.paid_late ? { label: 'Pago com atraso', variant: 'warning' } : { label: 'Pago em dia', variant: 'success' }
-}
 
 const monthlyChartOption = computed(() => {
   if (!transactions.value.length) return null
@@ -305,6 +339,14 @@ const deleteTransaction = async (t) => {
   }
 }
 
+const chargeModalOpen = ref(false)
+const chargingTransaction = ref(null)
+
+const chargeTransaction = (t) => {
+  chargingTransaction.value = { ...t, project: project.value }
+  chargeModalOpen.value = true
+}
+
 const loadTransactions = async () => {
   txLoading.value = true
   try {
@@ -363,55 +405,142 @@ onMounted(async () => {
   font-size: 0.9rem;
 }
 
-.summary-card {
+.project-header {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   background: #ffffff;
   border: 1px solid var(--color-border);
   border-radius: 16px;
   box-shadow: var(--shadow-sm);
-  padding: 20px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  padding: 24px;
 }
 
-.summary-badges {
+.project-header__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.project-header__identity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.project-header__icon {
+  flex: 0 0 52px;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 1.25rem;
+}
+
+.project-header__title {
+  min-width: 0;
+
+  h1 {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--color-text);
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  p {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+
+    i {
+      font-size: 0.75rem;
+      color: var(--color-text-faint);
+    }
+  }
+}
+
+.project-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.project-header__badges {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-.summary-grid {
+.project-header__stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
   margin: 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
 }
 
-.summary-item {
+.stat {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
+  min-width: 0;
 
   dt {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-size: 0.75rem;
     color: var(--color-text-muted);
+
+    i {
+      font-size: 0.6875rem;
+      color: var(--color-text-faint);
+    }
   }
 
   dd {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 0.9375rem;
     font-weight: 600;
     color: var(--color-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
-.summary-description {
+.project-header__description {
   margin: 0;
-  padding-top: 12px;
+  padding-top: 20px;
   border-top: 1px solid var(--color-border);
   color: var(--color-text-secondary);
   font-size: 0.875rem;
   line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .project-header__top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .project-header__actions {
+    justify-content: flex-end;
+  }
 }
 
 .tab-panel {
@@ -514,6 +643,17 @@ onMounted(async () => {
   font-size: 0.875rem;
 }
 
+.charge-warning {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+  font-size: 0.8125rem;
+}
+
 .history-list {
   max-height: 340px;
   overflow-y: auto;
@@ -549,5 +689,33 @@ onMounted(async () => {
   tr:last-child td {
     border-bottom: 0;
   }
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.checkout-link__url {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-info);
+  white-space: nowrap;
+
+  i {
+    font-size: 0.75rem;
+  }
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.link-empty {
+  color: var(--color-text-faint);
 }
 </style>

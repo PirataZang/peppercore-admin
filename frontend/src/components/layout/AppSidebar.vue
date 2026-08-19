@@ -66,16 +66,36 @@ const menuItems = computed(() => [
     children: [],
   },
   {
-    name: 'Projetos',
-    route: '/project',
-    icon: '<i class="fa-solid fa-diagram-project"></i>',
-    children: [],
+    name: 'Clientes',
+    route: null,
+    icon: '<i class="fa-solid fa-address-book"></i>',
+    children: [
+      {
+        name: 'Clientes',
+        route: '/client',
+        icon: '<i class="fa-solid fa-address-book"></i>',
+        children: [],
+      },
+      {
+        name: 'Projetos',
+        route: '/project',
+        icon: '<i class="fa-solid fa-diagram-project"></i>',
+        children: [],
+      },
+    ],
   },
   {
-    name: 'Clientes',
-    route: '/client',
-    icon: '<i class="fa-solid fa-address-book"></i>',
-    children: [],
+    name: 'Financeiro',
+    route: null,
+    icon: '<i class="fa-solid fa-sack-dollar"></i>',
+    children: [
+      {
+        name: 'Transações',
+        route: '/financial/transactions',
+        icon: '<i class="fa-solid fa-file-invoice-dollar"></i>',
+        children: [],
+      },
+    ],
   },
   {
     name: 'Usuários',
@@ -103,9 +123,9 @@ const menuItems = computed(() => [
     ],
   },
   {
-    name: 'Logs do Sistema',
-    route: null,
-    icon: '<i class="fa-solid fa-file-lines"></i>',
+    name: 'Configurações',
+    route: '/settings',
+    icon: '<i class="fa-solid fa-gear"></i>',
     children: [],
   },
 ])

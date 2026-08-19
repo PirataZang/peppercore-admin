@@ -17,7 +17,7 @@
                     </div>
 
                     <div class="col-6">
-                        <Input v-model="form.phone" label="Telefone" placeholder="(00) 00000-0000" />
+                        <Input v-model="form.phone" label="Telefone" placeholder="(00) 00000-0000" mask="phone" />
                     </div>
 
                     <div class="col-6">
@@ -26,6 +26,33 @@
 
                     <div class="col-6">
                         <Input v-model="form.address" label="Endereço" placeholder="Rua, número, cidade..." />
+                    </div>
+
+                    <div class="col-6">
+                        <Input v-model="form.document" label="CPF/CNPJ" placeholder="000.000.000-00" mask="cpf-cnpj" />
+                    </div>
+
+                    <div class="form-section-title col-12">
+                        <span>Endereço estruturado (para emissão de boleto)</span>
+                    </div>
+
+                    <div class="col-3">
+                        <Input v-model="form.zip_code" label="CEP" placeholder="00000-000" mask="cep" />
+                    </div>
+                    <div class="col-5">
+                        <Input v-model="form.street_name" label="Rua" placeholder="Nome da rua" />
+                    </div>
+                    <div class="col-2">
+                        <Input v-model="form.street_number" label="Número" placeholder="S/N" />
+                    </div>
+                    <div class="col-2">
+                        <Input v-model="form.state" label="UF" placeholder="SP" maxlength="2" />
+                    </div>
+                    <div class="col-6">
+                        <Input v-model="form.neighborhood" label="Bairro" placeholder="Bairro" />
+                    </div>
+                    <div class="col-6">
+                        <Input v-model="form.city" label="Cidade" placeholder="Cidade" />
                     </div>
 
                     <TextArea class="col-12" v-model="form.description" label="Descrição" placeholder="Observações sobre o cliente..." />
@@ -71,6 +98,13 @@ const form = ref({
     email: '',
     address: '',
     description: '',
+    document: '',
+    zip_code: '',
+    street_name: '',
+    street_number: '',
+    neighborhood: '',
+    city: '',
+    state: '',
 })
 
 const fetchClient = async () => {
@@ -89,6 +123,13 @@ const fetchClient = async () => {
         form.value.email = data.email || ''
         form.value.address = data.address || ''
         form.value.description = data.description || ''
+        form.value.document = data.document || ''
+        form.value.zip_code = data.zip_code || ''
+        form.value.street_name = data.street_name || ''
+        form.value.street_number = data.street_number || ''
+        form.value.neighborhood = data.neighborhood || ''
+        form.value.city = data.city || ''
+        form.value.state = data.state || ''
     } catch (err) {
         error.value = err.message
     } finally {
@@ -106,6 +147,13 @@ const submitForm = async () => {
         email: form.value.email || null,
         address: form.value.address || null,
         description: form.value.description || null,
+        document: form.value.document || null,
+        zip_code: form.value.zip_code || null,
+        street_name: form.value.street_name || null,
+        street_number: form.value.street_number || null,
+        neighborhood: form.value.neighborhood || null,
+        city: form.value.city || null,
+        state: form.value.state || null,
     }
 
     const url = isEdit.value ? `/api/clients/${clientId.value}` : '/api/clients'
@@ -143,5 +191,16 @@ onMounted(fetchClient)
     padding: 48px 24px;
     color: var(--color-text-muted);
     font-size: 0.9rem;
+}
+
+.form-section-title {
+    margin-top: 4px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--color-text-muted);
 }
 </style>

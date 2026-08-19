@@ -22,7 +22,16 @@
             :options="typeOptions"
             :clearable="false"
           />
-          <Input class="col-6" v-model="form.client_name" label="Cliente" placeholder="Nome do cliente/empresa" required />
+          <Select
+            class="col-6"
+            v-model="form.client_id"
+            label="Cliente cadastrado"
+            placeholder="Vincular a um cliente (opcional)"
+            :options="clientOptions"
+            search
+            @change="applyClient"
+          />
+          <Input class="col-6" v-model="form.client_name" label="Nome do Cliente" placeholder="Nome do cliente/empresa" required />
 
           <Input class="col-6" v-model="form.client_contact" label="Contato do Cliente" placeholder="E-mail ou telefone" />
           <Input class="col-6" v-model="form.domain" label="Domínio" placeholder="exemplo.com.br" />
@@ -74,10 +83,13 @@ const typeOptions = PROJECT_TYPE_OPTIONS
 const loading = ref(false)
 const saving = ref(false)
 const error = ref('')
+const clients = ref([])
+const clientOptions = computed(() => clients.value.map((c) => ({ value: c.id, label: c.name })))
 
 const emptyForm = () => ({
   name: '',
   type: 'site',
+  client_id: null,
   client_name: '',
   client_contact: '',
   domain: '',
@@ -89,7 +101,20 @@ const emptyForm = () => ({
 
 const form = ref(emptyForm())
 
-const NULLABLE_KEYS = ['client_contact', 'domain', 'monthly_value', 'due_day', 'description']
+const applyClient = (clientId) => {
+  const client = clients.value.find((c) => c.id === clientId)
+  if (!client) return
+  form.value.client_name = client.name
+  form.value.client_contact = client.email || client.phone || form.value.client_contact
+}
+
+const fetchClients = async () => {
+  const response = await apiFetch('/api/clients?per_page=200')
+  const data = await response.json()
+  clients.value = data.data || data
+}
+
+const NULLABLE_KEYS = ['client_id', 'client_contact', 'domain', 'monthly_value', 'due_day', 'description']
 
 const fetchProject = async () => {
   if (!isEdit.value) return
@@ -142,7 +167,10 @@ const submitForm = async () => {
   }
 }
 
-onMounted(fetchProject)
+onMounted(() => {
+  fetchClients()
+  fetchProject()
+})
 </script>
 
 <style scoped>
