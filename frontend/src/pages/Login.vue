@@ -8,6 +8,7 @@
           <p>Entre com suas credenciais para acessar o console.</p>
         </div>
       </div>
+      <h1>teste</h1>
 
       <form class="login-form" @submit.prevent="handleSubmit">
         <div class="form-grid">
