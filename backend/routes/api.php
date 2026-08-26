@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\IntegrationSettingController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProjectController;
@@ -57,6 +58,15 @@ Route::middleware('auth')->group(function () {
         Route::put('/{id}', [TransactionController::class, 'updateStandalone']);
         Route::delete('/{id}', [TransactionController::class, 'destroyStandalone']);
         Route::post('/{id}/charge', [TransactionController::class, 'chargeStandalone']);
+    });
+
+    Route::prefix('documents')->group(function () {
+        Route::get('/', [DocumentController::class, 'list']);
+        Route::get('/{id}/emit', [DocumentController::class, 'emit']);
+        Route::get('/{id}', [DocumentController::class, 'index']);
+        Route::post('/', [DocumentController::class, 'create']);
+        Route::put('/{id}', [DocumentController::class, 'update']);
+        Route::delete('/{id}', [DocumentController::class, 'delete']);
     });
 
     Route::get('/activity-log', [ActivityLogController::class, 'index']);

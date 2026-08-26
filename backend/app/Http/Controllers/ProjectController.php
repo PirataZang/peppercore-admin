@@ -95,6 +95,7 @@ class ProjectController extends Controller
             'due_day' => 'sometimes|nullable|integer|min:1|max:31',
             'payment_status' => 'sometimes|in:pago,pendente,atrasado',
             'description' => 'sometimes|nullable|string',
+            'active' => 'sometimes|boolean',
         ];
     }
 }

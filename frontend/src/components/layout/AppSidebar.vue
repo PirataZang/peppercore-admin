@@ -98,6 +98,12 @@ const menuItems = computed(() => [
     ],
   },
   {
+    name: 'Documentos',
+    route: '/document',
+    icon: '<i class="fa-solid fa-file-lines"></i>',
+    children: [],
+  },
+  {
     name: 'Usuários',
     route: '/user',
     icon: '<i class="fa-solid fa-users"></i>',

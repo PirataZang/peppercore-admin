@@ -42,6 +42,8 @@ Reutilize antes de criar algo novo:
   Convenção de cor por ação: Incluir = `create` (azul/info), Alterar = `edit` (verde/success), Excluir = `danger` (vermelho).
 - **Input / Select / TextArea / Switch / ColorField** (`utils/`) — todos usam `defineModel`, prop `label`, mesmo
   `field-shell` visual (borda, foco com anel `--color-primary-soft`).
+- **Campo booleano** (ativo/inativo, sim/não, ligado/desligado) sempre usa `Switch` (`utils/Switch.vue`) — nunca
+  checkbox nativo, nunca `Select` com opções Sim/Não.
 - **Modal** (`utils/Modal.vue`) — `v-model`, slots `default`/`footer`, fecha com Esc ou clique fora. Prop `size`
   (`sm` 440px padrão / `md` 720px·80vh / `lg` 960px·85vh) define largura/altura — só passe `width`/`height` direto
   para um caso realmente fora do padrão, eles sempre vencem `size`. Confirmações e formulários curtos usam `sm`
@@ -124,6 +126,7 @@ Controller fino → Service → Model. Nunca lógica de negócio no Controller.
 
 - [ ] Usa tokens `--color-*` existentes, sem hex novo solto no componente.
 - [ ] Reaproveita `Button`/`Input`/`Select`/`Modal`/`StatusBadge`/`AgGrid` em vez de recriar.
+- [ ] Todo campo booleano usa `Switch`, nunca checkbox nativo.
 - [ ] Segue a convenção de nomes/rotas de `[Model]List.vue` + `[Model]Form.vue`.
 - [ ] Controller fino, regra de negócio no Service.
 - [ ] Nenhum botão ou ícone decorativo sem função real.

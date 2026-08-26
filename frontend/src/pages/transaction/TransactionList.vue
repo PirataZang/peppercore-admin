@@ -63,7 +63,7 @@
         @update:page="handlePageChange"
         @update:pageSize="handlePageSizeChange"
         @update:selection="handleSelectionChange"
-        @row-click="handleRowClick"
+        @row-dblclick="handleRowDoubleClick"
       />
     </div>
 
@@ -226,7 +226,7 @@ const handleSelectionChange = (selection) => {
   selectedTransactions.value = selection
 }
 
-const handleRowClick = (rowData) => {
+const handleRowDoubleClick = (rowData) => {
   router.push(`/financial/transactions/form/${rowData.id}`)
 }
 

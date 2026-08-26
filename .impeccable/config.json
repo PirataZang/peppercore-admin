@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "side-tab",
+        "value": "border-left: 3px solid var(--color-border-strong)",
+        "files": [
+          "frontend/src/pages/document/DocumentEditor.vue"
+        ],
+        "createdAt": "2026-08-26T18:00:14.546Z",
+        "reason": "blockquote left-rule is the standard typographic convention for quotes, not a card side-tab accent"
+      }
+    ]
+  }
+}

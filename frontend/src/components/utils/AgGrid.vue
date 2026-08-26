@@ -3,7 +3,7 @@
         <AgGridVue class="grid" theme="legacy" :rowData="rowData" :columnDefs="columnDefs" :columnTypes="columnTypes"
             :defaultColDef="defaultColDef" :localeText="localeText" :rowSelection="rowSelectionConfig"
             :context="context" :domLayout="domLayout" @grid-ready="onGridReady" @selection-changed="onSelectionChanged"
-            @row-clicked="onRowClicked" />
+            @row-clicked="onRowClicked" @row-double-clicked="onRowDoubleClicked" />
 
         <!-- Painel de Paginação Premium Customizado -->
         <div class="custom-pagination">
@@ -50,9 +50,10 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, h } from 'vue'
 import { AgGridVue } from 'ag-grid-vue3'
 import { ModuleRegistry, ClientSideRowModelModule, CellStyleModule, RowSelectionModule, TextFilterModule, NumberFilterModule, DateFilterModule, LocaleModule, ValidationModule } from 'ag-grid-community'
+import Switch from './Switch.vue'
 
 // Imports dos estilos do AG Grid
 import 'ag-grid-community/styles/ag-grid.css'
@@ -81,7 +82,7 @@ const props = defineProps({
 /* ===============================
    EMITS
 ================================ */
-const emit = defineEmits(['update:selection', 'update:page', 'update:pageSize', 'row-click'])
+const emit = defineEmits(['update:selection', 'update:page', 'update:pageSize', 'row-click', 'row-dblclick'])
 
 /* ===============================
    GRID API
@@ -99,7 +100,20 @@ const onSelectionChanged = () => {
 }
 
 const onRowClicked = (event) => {
+    // Clicar na linha marca/desmarca o checkbox (mesmo comportamento de clicar
+    // nele direto) em vez de abrir o registro; clique duplo é que abre (ver
+    // onRowDoubleClicked). Ignora quando o clique já veio do próprio checkbox
+    // pra não desfazer o toggle nativo dele.
+    const target = event.event?.target
+    const clickedCheckbox = target?.closest?.('.ag-selection-checkbox, .ag-checkbox-cell')
+    if (props.selectable && !clickedCheckbox) {
+        event.node.setSelected(!event.node.isSelected())
+    }
     emit('row-click', event.data)
+}
+
+const onRowDoubleClicked = (event) => {
+    emit('row-dblclick', event.data)
 }
 
 const rowSelectionConfig = computed(() => {
@@ -171,6 +185,17 @@ const columnTypes = {
             if (!params.value) return ''
             return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(params.value)
         },
+    },
+
+    // Renderiza como o Switch do app (bolinha colorida) em vez de true/false cru.
+    // Somente exibição — o valor não é editável direto na grid.
+    boolean: {
+        cellClass: 'cell-center',
+        cellRenderer: (params) => h(Switch, {
+            modelValue: !!params.value,
+            textLabel: params.value ? 'Ativo' : 'Inativo',
+            style: 'pointer-events: none',
+        }),
     },
 }
 
