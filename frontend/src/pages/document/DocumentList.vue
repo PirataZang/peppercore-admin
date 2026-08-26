@@ -64,8 +64,15 @@
       />
     </div>
 
-    <Modal v-model="emitModalOpen" title="Emitir Documento">
-      <DocumentSelect v-model="emitDocumentId" />
+    <Modal v-model="emitModalOpen" title="Emitir Documento" size="md">
+      <div class="emit-form">
+        <DocumentSelect v-model="emitDocumentId" />
+        <ClientSelect v-model="emitClientId" />
+        <ProjectSelect v-model="emitProjectId" />
+        <Input v-model="emitValue" label="Valor" type="number" step="0.01" min="0" placeholder="0,00">
+          <template #prefix>R$</template>
+        </Input>
+      </div>
 
       <template #footer>
         <Button variant="secondary" label="Cancelar" @click="emitModalOpen = false" />
@@ -83,6 +90,8 @@ import Button from '@/components/utils/Button.vue'
 import Input from '@/components/utils/Input.vue'
 import Modal from '@/components/utils/Modal.vue'
 import DocumentSelect from '@/components/utils/DocumentSelect.vue'
+import ClientSelect from '@/components/utils/ClientSelect.vue'
+import ProjectSelect from '@/components/utils/ProjectSelect.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { apiFetch } from '@/services/api'
 import { swal } from '@/plugins/swal'
@@ -97,6 +106,9 @@ const searchQuery = ref('')
 const selectedDocuments = ref([])
 const emitModalOpen = ref(false)
 const emitDocumentId = ref(null)
+const emitClientId = ref(null)
+const emitProjectId = ref(null)
+const emitValue = ref('')
 let searchTimeout = null
 
 const columnDefs = ref([
@@ -180,6 +192,9 @@ const deleteSelectedDocuments = async () => {
 const openEmitModal = () => {
   const single = selectedDocuments.value.length === 1 ? selectedDocuments.value[0] : null
   emitDocumentId.value = single?.active ? single.id : null
+  emitClientId.value = null
+  emitProjectId.value = null
+  emitValue.value = ''
   emitModalOpen.value = true
 }
 
@@ -192,7 +207,12 @@ const handleEmit = async () => {
   }
 
   try {
-    const response = await apiFetch(`/api/documents/${emitDocumentId.value}/emit`)
+    const params = new URLSearchParams()
+    if (emitClientId.value) params.set('client_id', emitClientId.value)
+    if (emitProjectId.value) params.set('project_id', emitProjectId.value)
+    if (emitValue.value) params.set('value', emitValue.value)
+
+    const response = await apiFetch(`/api/documents/${emitDocumentId.value}/emit?${params}`)
     if (!response.ok) {
       throw new Error('Não foi possível gerar o PDF deste documento.')
     }
@@ -245,5 +265,11 @@ onMounted(fetchDocuments)
   border-radius: 16px;
   box-shadow: var(--shadow-sm);
   overflow: hidden;
+}
+
+.emit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 </style>

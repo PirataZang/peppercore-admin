@@ -44,6 +44,13 @@ Reutilize antes de criar algo novo:
   `field-shell` visual (borda, foco com anel `--color-primary-soft`).
 - **Campo booleano** (ativo/inativo, sim/não, ligado/desligado) sempre usa `Switch` (`utils/Switch.vue`) — nunca
   checkbox nativo, nunca `Select` com opções Sim/Não.
+- **`[Model]Select`** (ex. `utils/DocumentSelect.vue`, `ClientSelect.vue`, `ProjectSelect.vue`) — padrão obrigatório
+  sempre que for pedido um combo para escolher um registro de um model (Documento, Cliente, Projeto, etc.): um
+  componente fino que só envolve `Select.vue`, busca as opções via `apiFetch` no `onMounted` (`{value: id, label:
+  <campo mais legível>}`) e expõe `defineModel()`. Não redeclare `multiple`/`clearable`/`search`/`placeholder`/
+  `label` como props próprias — esses atributos passados pelo componente pai caem direto no `Select` interno via
+  fallthrough attrs (Vue já faz isso sozinho quando o template tem um único elemento raiz), então o `[Model]Select`
+  fica sempre padrão e nunca precisa ser redigido pra suportar essas variações.
 - **Modal** (`utils/Modal.vue`) — `v-model`, slots `default`/`footer`, fecha com Esc ou clique fora. Prop `size`
   (`sm` 440px padrão / `md` 720px·80vh / `lg` 960px·85vh) define largura/altura — só passe `width`/`height` direto
   para um caso realmente fora do padrão, eles sempre vencem `size`. Confirmações e formulários curtos usam `sm`
@@ -122,7 +129,50 @@ Controller fino → Service → Model. Nunca lógica de negócio no Controller.
   ponto de confirm/alert/toast (`swal.confirm`, `swal.confirmDelete`, `swal.toastSuccess/Error`).
 - Nunca `fetch()` direto numa página — sempre `apiFetch`. Nunca `window.confirm`/`alert` — sempre `swal`.
 
-## 7. Checklist antes de abrir PR
+## 7. Variáveis de documento
+
+Documentos (`pages/document/DocumentEditor.vue`) podem conter tokens `{{Chave}}` no meio do conteúdo, inseridos
+pelo dropdown "Inserir variável" da toolbar. Na emissão (`GET /api/documents/{id}/emit`), se a requisição
+informar `client_id` e/ou `project_id` (escolhidos no modal de emissão via `ClientSelect`/`ProjectSelect`), o
+backend (`DocumentService::documentVariables()`) substitui cada token pelo dado real antes de gerar o PDF —
+sempre com `e()` (HTML-escaped), então o valor aparece sempre como texto literal, nunca interpretado como marcação.
+
+A lista de variáveis vive em dois lugares que precisam ficar em sincronia manual: o dropdown do editor
+(`frontend/src/config/documentVariables.js`) e o mapa de substituição do backend (`DocumentService::documentVariables()`).
+Ao adicionar uma variável nova, atualize os dois. A chave usa o nome do campo em inglês (igual à coluna/model);
+o rótulo mostrado ao usuário é sempre traduzido:
+
+| Variável | Rótulo exibido |
+|---|---|
+| `Cliente.name` | Cliente - Nome |
+| `Cliente.email` | Cliente - E-mail |
+| `Cliente.phone` | Cliente - Telefone |
+| `Cliente.address` | Cliente - Endereço |
+| `Cliente.document` | Cliente - CPF/CNPJ |
+| `Cliente.zip_code` | Cliente - CEP |
+| `Cliente.street_name` | Cliente - Rua |
+| `Cliente.street_number` | Cliente - Número |
+| `Cliente.neighborhood` | Cliente - Bairro |
+| `Cliente.city` | Cliente - Cidade |
+| `Cliente.state` | Cliente - UF |
+| `Cliente.description` | Cliente - Descrição |
+| `Projeto.name` | Projeto - Nome |
+| `Projeto.type` | Projeto - Tipo |
+| `Projeto.domain` | Projeto - Domínio |
+| `Projeto.client_name` | Projeto - Cliente Vinculado |
+| `Projeto.client_contact` | Projeto - Contato do Cliente |
+| `Projeto.monthly_value` | Projeto - Mensalidade |
+| `Projeto.due_day` | Projeto - Dia de Vencimento |
+| `Projeto.payment_status` | Projeto - Situação de Pagamento |
+| `Projeto.description` | Projeto - Descrição |
+| `Valor` | Valor (informado na emissão) |
+
+`Cliente.*`/`Projeto.*` cobrem praticamente todos os campos fillable dos models `Client`/`Project` — de propósito
+ficam fora o `active` (flag interna, não é dado pra imprimir) e IDs/chaves estrangeiras. `Valor` não vem de
+model nenhum: é digitado à mão no modal de emissão (campo livre para orçamento/cobrança), por isso não tem
+prefixo de model.
+
+## 8. Checklist antes de abrir PR
 
 - [ ] Usa tokens `--color-*` existentes, sem hex novo solto no componente.
 - [ ] Reaproveita `Button`/`Input`/`Select`/`Modal`/`StatusBadge`/`AgGrid` em vez de recriar.

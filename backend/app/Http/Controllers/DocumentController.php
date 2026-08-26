@@ -75,9 +75,15 @@ class DocumentController extends Controller
     /**
      * Emit the specified document as a downloadable PDF.
      */
-    public function emit(int $id)
+    public function emit(Request $request, int $id)
     {
-        ['pdf' => $pdf, 'filename' => $filename] = $this->documentService->emit($id);
+        $validated = $request->validate([
+            'client_id' => 'sometimes|nullable|integer|exists:clients,id',
+            'project_id' => 'sometimes|nullable|integer|exists:projects,id',
+            'value' => 'sometimes|nullable|numeric|min:0',
+        ]);
+
+        ['pdf' => $pdf, 'filename' => $filename] = $this->documentService->emit($id, $validated);
 
         return $pdf->download($filename);
     }

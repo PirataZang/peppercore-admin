@@ -2,7 +2,9 @@
 
 namespace App\Service;
 
+use App\Models\Client;
 use App\Models\Document;
+use App\Models\Project;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Barryvdh\DomPDF\PDF as PdfDocument;
 use HTMLPurifier;
@@ -105,11 +107,13 @@ class DocumentService
     }
 
     /**
-     * Render a document to PDF for download.
+     * Render a document to PDF for download, substituting {{Cliente.*}}/{{Projeto.*}}/{{Valor}}
+     * variables (see design.md) with data from the linked client/project, when given.
      *
+     * @param array{client_id?: int, project_id?: int, value?: string} $params
      * @return array{pdf: PdfDocument, filename: string}
      */
-    public function emit(int $id): array
+    public function emit(int $id, array $params = []): array
     {
         $document = $this->index($id);
 
@@ -119,20 +123,87 @@ class DocumentService
             ]);
         }
 
-        $pdf = Pdf::loadHTML($this->toPdfHtml($document))->setPaper('a4');
+        $client = !empty($params['client_id']) ? Client::find($params['client_id']) : null;
+        $project = !empty($params['project_id']) ? Project::find($params['project_id']) : null;
+
+        $variables = $this->documentVariables($client, $project, $params['value'] ?? null);
+        $content = $this->replaceVariables($document->content ?? '', $variables);
+
+        $pdf = Pdf::loadHTML($this->toPdfHtml($document, $content))->setPaper('a4');
         $filename = Str::slug($document->name ?: 'documento') . '.pdf';
 
         return ['pdf' => $pdf, 'filename' => $filename];
     }
 
     /**
-     * Wrap the editor's stored HTML with the print styling used to render it as a PDF.
-     * dompdf doesn't resolve the app's CSS custom properties, so colors are hardcoded here.
+     * Build the {{Cliente.*}} / {{Projeto.*}} / {{Valor}} variable map for a linked
+     * client/project (see design.md for the full list and their translated labels).
      */
-    private function toPdfHtml(Document $document): string
+    private function documentVariables(?Client $client, ?Project $project, ?string $value): array
+    {
+        $vars = [];
+
+        if ($client) {
+            $vars['Cliente.name'] = $client->name;
+            $vars['Cliente.email'] = $client->email;
+            $vars['Cliente.phone'] = $client->phone;
+            $vars['Cliente.address'] = $client->address;
+            $vars['Cliente.document'] = $client->document;
+            $vars['Cliente.zip_code'] = $client->zip_code;
+            $vars['Cliente.street_name'] = $client->street_name;
+            $vars['Cliente.street_number'] = $client->street_number;
+            $vars['Cliente.neighborhood'] = $client->neighborhood;
+            $vars['Cliente.city'] = $client->city;
+            $vars['Cliente.state'] = $client->state;
+            $vars['Cliente.description'] = $client->description;
+        }
+
+        if ($project) {
+            $vars['Projeto.name'] = $project->name;
+            $vars['Projeto.type'] = ['site' => 'Site', 'sistema' => 'Sistema', 'host' => 'Host'][$project->type] ?? $project->type;
+            $vars['Projeto.domain'] = $project->domain;
+            $vars['Projeto.client_name'] = $project->client_name;
+            $vars['Projeto.client_contact'] = $project->client_contact;
+            $vars['Projeto.monthly_value'] = $project->monthly_value !== null
+                ? 'R$ ' . number_format((float) $project->monthly_value, 2, ',', '.')
+                : null;
+            $vars['Projeto.due_day'] = $project->due_day;
+            $vars['Projeto.payment_status'] = ['pago' => 'Pago', 'pendente' => 'Pendente', 'atrasado' => 'Atrasado'][$project->payment_status] ?? $project->payment_status;
+            $vars['Projeto.description'] = $project->description;
+        }
+
+        if ($value !== null && $value !== '') {
+            $vars['Valor'] = 'R$ ' . number_format((float) $value, 2, ',', '.');
+        }
+
+        return $vars;
+    }
+
+    /**
+     * Replace every {{Key}} token with its value, HTML-escaped so a variable's raw
+     * text (a client's address, say) is always shown literally, never as markup.
+     */
+    private function replaceVariables(string $html, array $variables): string
+    {
+        $search = [];
+        $replace = [];
+
+        foreach ($variables as $key => $val) {
+            $search[] = '{{' . $key . '}}';
+            $replace[] = e($val ?? '');
+        }
+
+        return $search ? str_replace($search, $replace, $html) : $html;
+    }
+
+    /**
+     * Wrap the editor's HTML (already variable-substituted) with the print styling
+     * used to render it as a PDF. dompdf doesn't resolve the app's CSS custom
+     * properties, so colors are hardcoded here.
+     */
+    private function toPdfHtml(Document $document, string $content): string
     {
         $title = e($document->name);
-        $content = $document->content ?? '';
 
         return <<<HTML
             <!DOCTYPE html>

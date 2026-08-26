@@ -118,6 +118,18 @@
           <i class="fa-solid fa-text-slash" />
         </button>
 
+        <span class="tb-sep" />
+
+        <Select
+          class="tb-variable-select"
+          v-model="selectedVariable"
+          :options="variableOptions"
+          placeholder="Inserir variável..."
+          search
+          :clearable="false"
+          @change="handleVariableSelect"
+        />
+
         <span class="page-counter">
           <i class="fa-solid fa-file-lines" aria-hidden="true" />
           {{ pageCount }} {{ pageCount === 1 ? 'folha' : 'folhas' }}
@@ -131,6 +143,8 @@
             class="doc-sheet"
             contenteditable="true"
             v-html="initialContent"
+            @mouseup="saveSelection"
+            @keyup="saveSelection"
           />
           <div class="page-breaks" aria-hidden="true">
             <div
@@ -157,9 +171,11 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { apiFetch } from '@/services/api'
 import Input from '@/components/utils/Input.vue'
+import Select from '@/components/utils/Select.vue'
 import Switch from '@/components/utils/Switch.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import FormActions from '@/components/ui/FormActions.vue'
+import { DOCUMENT_VARIABLES } from '@/config/documentVariables'
 
 const router = useRouter()
 const route = useRoute()
@@ -182,20 +198,54 @@ const sheetHeight = ref(0)
 const pageCount = computed(() => Math.max(1, Math.ceil(sheetHeight.value / PAGE_HEIGHT)))
 let resizeObserver = null
 
-const exec = (command, value = null) => {
+// A toolbar (principalmente o Select de variáveis, que foca um <input> de
+// busca ao abrir) rouba o foco do editor e some com o cursor; guardamos o
+// último Range colocado dentro do editor pra poder devolver o cursor pro
+// lugar certo antes de qualquer comando, em vez de cair sempre no topo.
+let savedRange = null
+
+const saveSelection = () => {
+  const selection = window.getSelection()
+  if (selection && selection.rangeCount > 0 && editorRef.value?.contains(selection.anchorNode)) {
+    savedRange = selection.getRangeAt(0).cloneRange()
+  }
+}
+
+const restoreSelection = () => {
   editorRef.value?.focus()
+  if (!savedRange) return
+  const selection = window.getSelection()
+  selection.removeAllRanges()
+  selection.addRange(savedRange)
+}
+
+const exec = (command, value = null) => {
+  restoreSelection()
   document.execCommand(command, false, value)
+  saveSelection()
 }
 
 const applyBlock = (tag) => {
-  editorRef.value?.focus()
+  restoreSelection()
   document.execCommand('formatBlock', false, tag)
+  saveSelection()
 }
 
 const insertLink = () => {
   const url = window.prompt('URL do link:')
   if (!url) return
   exec('createLink', url)
+}
+
+// Select.vue não tem optgroup — o prefixo "Cliente - "/"Projeto - " no label já
+// deixa a lista filtrável por grupo ao digitar, sem precisar de agrupamento visual.
+const variableOptions = DOCUMENT_VARIABLES.map((v) => ({ value: v.key, label: v.label }))
+const selectedVariable = ref(null)
+
+const handleVariableSelect = (key) => {
+  if (!key) return
+  exec('insertText', `{{${key}}}`)
+  selectedVariable.value = null
 }
 
 const fetchDocument = async () => {
@@ -370,6 +420,15 @@ onBeforeUnmount(() => {
   font-family: var(--font-sans);
   font-size: 0.8125rem;
   cursor: pointer;
+}
+
+.tb-variable-select {
+  width: 220px;
+  flex-shrink: 0;
+}
+
+.tb-variable-select :deep(.select-control) {
+  min-height: 34px;
 }
 
 .tb-sep {
