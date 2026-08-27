@@ -34,6 +34,13 @@
           @click="editSelected"
         />
         <Button
+          variant="secondary"
+          icon="fa-solid fa-eye"
+          label="Detalhes"
+          :disabled="selectedProjects.length !== 1"
+          @click="viewSelectedDetail"
+        />
+        <Button
           variant="danger"
           icon="fa-solid fa-trash-can"
           :label="selectedProjects.length > 0 ? `Excluir (${selectedProjects.length})` : 'Excluir'"
@@ -54,7 +61,7 @@
         @update:page="handlePageChange"
         @update:pageSize="handlePageSizeChange"
         @update:selection="handleSelectionChange"
-        @row-click="handleRowClick"
+        @row-dblclick="handleRowDoubleClick"
       />
     </div>
   </div>
@@ -112,6 +119,7 @@ const columnDefs = ref([
       return h(StatusBadge, { label, variant })
     },
   },
+  { field: 'active', headerName: 'Situação', type: 'boolean', width: 130, sortable: true },
 ])
 
 const fetchProjects = async () => {
@@ -149,8 +157,13 @@ const handleSelectionChange = (selection) => {
   selectedProjects.value = selection
 }
 
-const handleRowClick = (rowData) => {
-  router.push(`/project/${rowData.id}`)
+const handleRowDoubleClick = (rowData) => {
+  router.push(`/project/form/${rowData.id}`)
+}
+
+const viewSelectedDetail = () => {
+  if (selectedProjects.value.length !== 1) return
+  router.push(`/project/${selectedProjects.value[0].id}`)
 }
 
 const editSelected = () => {

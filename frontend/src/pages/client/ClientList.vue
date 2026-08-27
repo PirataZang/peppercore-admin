@@ -54,7 +54,7 @@
         @update:page="handlePageChange"
         @update:pageSize="handlePageSizeChange"
         @update:selection="handleSelectionChange"
-        @row-click="handleRowClick"
+        @row-dblclick="handleRowDoubleClick"
       />
     </div>
   </div>
@@ -85,6 +85,7 @@ const columnDefs = ref([
   { field: 'phone', headerName: 'Telefone', width: 160, sortable: true, filter: true },
   { field: 'email', headerName: 'E-mail', flex: 1, sortable: true, filter: true },
   { field: 'address', headerName: 'Endereço', flex: 1, sortable: true, filter: true },
+  { field: 'active', headerName: 'Situação', type: 'boolean', width: 130, sortable: true },
 ])
 
 const fetchClients = async () => {
@@ -122,7 +123,7 @@ const handleSelectionChange = (selection) => {
   selectedClients.value = selection
 }
 
-const handleRowClick = (rowData) => {
+const handleRowDoubleClick = (rowData) => {
   router.push(`/client/form/${rowData.id}`)
 }
 

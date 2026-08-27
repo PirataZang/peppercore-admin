@@ -294,8 +294,13 @@ function handleClickOutside(event) {
   close()
 }
 
-function handleScrollOrResize() {
-  if (isOpen.value) close()
+function handleScrollOrResize(event) {
+  if (!isOpen.value) return
+  // Rolar a própria lista de opções também dispara "scroll" (fase de captura,
+  // então chega aqui antes do alvo) — só fecha se o scroll foi na página em
+  // volta, não dentro do dropdown.
+  if (event?.target instanceof Node && dropdownRef.value?.contains(event.target)) return
+  close()
 }
 
 onMounted(() => {

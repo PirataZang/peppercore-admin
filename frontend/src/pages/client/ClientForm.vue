@@ -32,6 +32,10 @@
                         <Input v-model="form.document" label="CPF/CNPJ" placeholder="000.000.000-00" mask="cpf-cnpj" />
                     </div>
 
+                    <div class="col-6">
+                        <Switch v-model="form.active" label="Situação" :text-label="form.active ? 'Ativo' : 'Inativo'" />
+                    </div>
+
                     <div class="form-section-title col-12">
                         <span>Endereço estruturado (para emissão de boleto)</span>
                     </div>
@@ -76,6 +80,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { apiFetch } from '@/services/api'
 import Input from '@/components/utils/Input.vue'
 import TextArea from '@/components/utils/TextArea.vue'
+import Switch from '@/components/utils/Switch.vue'
 import Button from '@/components/utils/Button.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import FormActions from '@/components/ui/FormActions.vue'
@@ -105,6 +110,7 @@ const form = ref({
     neighborhood: '',
     city: '',
     state: '',
+    active: true,
 })
 
 const fetchClient = async () => {
@@ -130,6 +136,7 @@ const fetchClient = async () => {
         form.value.neighborhood = data.neighborhood || ''
         form.value.city = data.city || ''
         form.value.state = data.state || ''
+        form.value.active = data.active ?? true
     } catch (err) {
         error.value = err.message
     } finally {
@@ -154,6 +161,7 @@ const submitForm = async () => {
         neighborhood: form.value.neighborhood || null,
         city: form.value.city || null,
         state: form.value.state || null,
+        active: form.value.active,
     }
 
     const url = isEdit.value ? `/api/clients/${clientId.value}` : '/api/clients'
