@@ -9,6 +9,7 @@ use App\Http\Controllers\LeadSearchRequestController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PotentialLeadController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\PublicClientController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WebhookController;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\Redis;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/webhooks/mercado-pago', [WebhookController::class, 'mercadoPago']);
+Route::post('/public/clients', [PublicClientController::class, 'create'])->middleware('throttle:20,1');
 
 Route::middleware('auth')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);

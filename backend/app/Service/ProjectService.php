@@ -64,9 +64,27 @@ class ProjectService
     /**
      * Aggregate data for the dashboard: totals, revenue, breakdown by type and upcoming dues.
      */
-    public function summary(): array
+    public function summary(array $filters = []): array
     {
-        $projects = Project::all();
+        $query = Project::query();
+
+        if (!empty($filters['date_from'])) {
+            $query->whereDate('created_at', '>=', $filters['date_from']);
+        }
+        if (!empty($filters['date_to'])) {
+            $query->whereDate('created_at', '<=', $filters['date_to']);
+        }
+        if (!empty($filters['status'])) {
+            $query->where('payment_status', $filters['status']);
+        }
+        if (!empty($filters['client_id'])) {
+            $query->where('client_id', $filters['client_id']);
+        }
+        if (!empty($filters['project_id'])) {
+            $query->where('id', $filters['project_id']);
+        }
+
+        $projects = $query->get();
         $now = Carbon::now();
 
         $upcoming = $projects

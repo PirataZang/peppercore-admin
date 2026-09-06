@@ -36,6 +36,13 @@
           @click="markSelectedAsChecked"
         />
         <Button
+          variant="create"
+          icon="fa-solid fa-user-plus"
+          label="Virar cliente"
+          :disabled="selectedLeads.length !== 1"
+          @click="convertSelectedToClient"
+        />
+        <Button
           variant="danger"
           icon="fa-solid fa-trash-can"
           :label="selectedLeads.length > 0 ? `Excluir (${selectedLeads.length})` : 'Excluir'"
@@ -65,6 +72,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import AgGrid from '@/components/utils/AgGrid.vue'
 import Button from '@/components/utils/Button.vue'
 import Input from '@/components/utils/Input.vue'
@@ -73,6 +81,8 @@ import LeadSearchRequestSelect from '@/components/utils/LeadSearchRequestSelect.
 import LeadSearchModal from './LeadSearchModal.vue'
 import { apiFetch } from '@/services/api'
 import { swal } from '@/plugins/swal'
+
+const router = useRouter()
 
 const leadsData = ref([])
 const totalRows = ref(0)
@@ -153,6 +163,19 @@ const markSelectedAsChecked = async () => {
     console.error('Falha ao marcar leads como verificados:', err)
     swal.toastError('Falha ao marcar lead(s) como verificados.')
   }
+}
+
+const convertSelectedToClient = () => {
+  if (selectedLeads.value.length !== 1) return
+  const lead = selectedLeads.value[0]
+  router.push({
+    path: '/client/form',
+    query: {
+      name: lead.name,
+      phone: lead.phone || undefined,
+      address: lead.address || undefined,
+    },
+  })
 }
 
 const deleteSelectedLeads = async () => {

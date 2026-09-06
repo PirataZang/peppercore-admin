@@ -1,10 +1,6 @@
 <template>
   <div class="shell">
-    <AppSidebar
-      :user-name="auth.user?.name || 'Usuário'"
-      :user-email="auth.user?.email || ''"
-      :user-initials="auth.userInitials"
-    />
+    <AppSidebar />
 
     <div class="shell__main">
       <header class="topbar">

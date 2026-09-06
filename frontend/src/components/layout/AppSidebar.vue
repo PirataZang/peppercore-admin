@@ -26,16 +26,6 @@
           />
         </ul>
       </nav>
-
-      <div class="footer">
-        <div class="user">
-          <div class="user__avatar">{{ userInitials }}</div>
-          <div v-show="isExpanded" class="user__meta">
-            <strong>{{ userName }}</strong>
-            <span>{{ userEmail }}</span>
-          </div>
-        </div>
-      </div>
     </div>
   </aside>
 </template>
@@ -47,9 +37,6 @@ import SidebarMenuItem from './SidebarMenuItem.vue'
 
 const props = defineProps({
   visible: { type: Boolean, default: true },
-  userName: { type: String, default: 'Usuário' },
-  userEmail: { type: String, default: '' },
-  userInitials: { type: String, default: 'U' },
 })
 
 const route = useRoute()
@@ -278,57 +265,4 @@ watch(
   gap: 4px;
 }
 
-.footer {
-  flex: 0 0 auto;
-  padding: 12px 10px;
-  border-top: 1px solid $color-border;
-  background: #ffffff;
-}
-
-.user {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 44px;
-  padding: 6px 8px;
-  border-radius: $radius-md;
-  background: $color-bg-muted;
-}
-
-.user__avatar {
-  flex: 0 0 36px;
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  border-radius: $radius-full;
-  background: $color-primary;
-  color: #fff;
-  font-size: $font-sm;
-  font-weight: 700;
-}
-
-.user__meta {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  line-height: 1.2;
-
-  strong {
-    font-size: $font-sm;
-    font-weight: 600;
-    color: $color-text;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  span {
-    font-size: $font-xs;
-    color: $color-text-muted;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
 </style>
