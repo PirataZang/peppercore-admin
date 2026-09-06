@@ -1,0 +1,5 @@
+version: 1
+processes:
+    - name: deploy
+      file: .github/workflows/deploy.yml
+      description: discovered

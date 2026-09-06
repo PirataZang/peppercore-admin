@@ -14,6 +14,7 @@ import TransactionList from '@/pages/transaction/TransactionList.vue'
 import TransactionForm from '@/pages/transaction/TransactionForm.vue'
 import DocumentList from '@/pages/document/DocumentList.vue'
 import DocumentEditor from '@/pages/document/DocumentEditor.vue'
+import LeadList from '@/pages/lead/LeadList.vue'
 import Settings from '@/pages/settings/Settings.vue'
 
 const routes = [
@@ -121,6 +122,11 @@ const routes = [
         name: 'DocumentEdit',
         component: DocumentEditor,
         props: true,
+      },
+      {
+        path: 'lead',
+        name: 'LeadList',
+        component: LeadList,
       },
       {
         path: 'settings',

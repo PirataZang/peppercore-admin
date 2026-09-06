@@ -104,6 +104,12 @@ const menuItems = computed(() => [
     children: [],
   },
   {
+    name: 'Leads',
+    route: '/lead',
+    icon: '<i class="fa-solid fa-magnifying-glass-location"></i>',
+    children: [],
+  },
+  {
     name: 'Usuários',
     route: '/user',
     icon: '<i class="fa-solid fa-users"></i>',
