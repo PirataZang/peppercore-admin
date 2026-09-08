@@ -89,6 +89,7 @@ class ClientController extends Controller
             'neighborhood' => 'sometimes|nullable|string|max:255',
             'city' => 'sometimes|nullable|string|max:255',
             'state' => 'sometimes|nullable|string|size:2',
+            'active' => 'sometimes|boolean',
         ];
     }
 }

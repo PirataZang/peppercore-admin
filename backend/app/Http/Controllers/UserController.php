@@ -47,6 +47,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
+            'active' => 'sometimes|boolean',
         ]);
 
         $user = $this->userService->create($validated);
@@ -63,6 +64,7 @@ class UserController extends Controller
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|string|email|max:255|unique:users,email,' . $id,
             'password' => 'sometimes|string|min:8',
+            'active' => 'sometimes|boolean',
         ]);
 
         $user = $this->userService->update($id, $validated);

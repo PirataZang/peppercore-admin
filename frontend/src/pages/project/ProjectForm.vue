@@ -43,12 +43,13 @@
           <Select
             class="col-4"
             v-model="form.payment_status"
-            label="Situação"
+            label="Situação de Pagamento"
             :options="paymentOptions"
             :clearable="false"
           />
 
-          <TextArea class="col-12" v-model="form.description" label="Descrição" placeholder="Detalhes do contrato, escopo, observações..." />
+          <TextArea class="col-10" v-model="form.description" label="Descrição" placeholder="Detalhes do contrato, escopo, observações..." />
+          <Switch class="col-2" v-model="form.active" label="Situação" :text-label="form.active ? 'Ativo' : 'Inativo'" />
         </div>
 
         <div v-if="error" class="form-error" style="margin-top: 16px">
@@ -68,6 +69,7 @@ import { apiFetch } from '@/services/api'
 import Input from '@/components/utils/Input.vue'
 import Select from '@/components/utils/Select.vue'
 import TextArea from '@/components/utils/TextArea.vue'
+import Switch from '@/components/utils/Switch.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import FormActions from '@/components/ui/FormActions.vue'
 import { PAYMENT_STATUS_OPTIONS, PROJECT_TYPE_OPTIONS } from '@/config/projectStatus'
@@ -97,6 +99,7 @@ const emptyForm = () => ({
   due_day: '',
   payment_status: 'pendente',
   description: '',
+  active: true,
 })
 
 const form = ref(emptyForm())

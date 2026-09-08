@@ -12,6 +12,9 @@ import ClientList from '@/pages/client/ClientList.vue'
 import ClientForm from '@/pages/client/ClientForm.vue'
 import TransactionList from '@/pages/transaction/TransactionList.vue'
 import TransactionForm from '@/pages/transaction/TransactionForm.vue'
+import DocumentList from '@/pages/document/DocumentList.vue'
+import DocumentEditor from '@/pages/document/DocumentEditor.vue'
+import LeadList from '@/pages/lead/LeadList.vue'
 import Settings from '@/pages/settings/Settings.vue'
 
 const routes = [
@@ -103,6 +106,27 @@ const routes = [
         name: 'TransactionEdit',
         component: TransactionForm,
         props: true,
+      },
+      {
+        path: 'document',
+        name: 'DocumentList',
+        component: DocumentList,
+      },
+      {
+        path: 'document/form',
+        name: 'DocumentCreate',
+        component: DocumentEditor,
+      },
+      {
+        path: 'document/form/:id',
+        name: 'DocumentEdit',
+        component: DocumentEditor,
+        props: true,
+      },
+      {
+        path: 'lead',
+        name: 'LeadList',
+        component: LeadList,
       },
       {
         path: 'settings',

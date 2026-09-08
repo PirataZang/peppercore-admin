@@ -54,7 +54,7 @@
         @update:page="handlePageChange"
         @update:pageSize="handlePageSizeChange"
         @update:selection="handleSelectionChange"
-        @row-click="handleRowClick"
+        @row-dblclick="handleRowDoubleClick"
       />
     </div>
   </div>
@@ -91,6 +91,7 @@ const columnDefs = ref([
   },
   { field: 'name', headerName: 'Nome Completo', flex: 1, sortable: true, filter: true },
   { field: 'email', headerName: 'E-mail Corporativo', flex: 1, sortable: true, filter: true },
+  { field: 'active', headerName: 'Situação', type: 'boolean', width: 130, sortable: true },
   {
     field: 'created_at',
     headerName: 'Data de Cadastro',
@@ -135,7 +136,7 @@ const handleSelectionChange = (selection) => {
   selectedUsers.value = selection
 }
 
-const handleRowClick = (rowData) => {
+const handleRowDoubleClick = (rowData) => {
   router.push(`/user/form/${rowData.id}`)
 }
 

@@ -19,6 +19,8 @@
                     </div>
 
                     <Input class="col-10" v-model="form.password" :label="passwordLabel" type="password" :required="!isEdit" placeholder="Mínimo 8 caracteres..." />
+
+                    <Switch class="col-2" v-model="form.active" label="Situação" :text-label="form.active ? 'Ativo' : 'Inativo'" />
                 </div>
 
                 <div v-if="error" class="form-error" style="margin-top: 16px">
@@ -36,6 +38,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { apiFetch } from '@/services/api'
 import Input from '@/components/utils/Input.vue'
+import Switch from '@/components/utils/Switch.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import FormActions from '@/components/ui/FormActions.vue'
 
@@ -54,6 +57,7 @@ const form = ref({
     name: '',
     email: '',
     password: '',
+    active: true,
 })
 
 const fetchUser = async () => {
@@ -70,6 +74,7 @@ const fetchUser = async () => {
         form.value.name = data.name
         form.value.email = data.email
         form.value.password = ''
+        form.value.active = data.active ?? true
     } catch (err) {
         error.value = err.message
     } finally {
@@ -84,6 +89,7 @@ const submitForm = async () => {
     const payload = {
         name: form.value.name,
         email: form.value.email,
+        active: form.value.active,
     }
 
     if (form.value.password) {

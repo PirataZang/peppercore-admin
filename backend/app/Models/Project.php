@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'due_day',
     'payment_status',
     'description',
+    'active',
 ])]
 class Project extends Model
 {
@@ -29,6 +30,7 @@ class Project extends Model
         return [
             'monthly_value' => 'decimal:2',
             'due_day' => 'integer',
+            'active' => 'boolean',
         ];
     }
 

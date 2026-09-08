@@ -20,7 +20,7 @@ class AuthService
     {
         $user = User::where('email', $email)->first();
 
-        if (!$user || !Hash::check($password, $user->password)) {
+        if (!$user || !Hash::check($password, $user->password) || !$user->active) {
             throw ValidationException::withMessages([
                 'email' => ['Credenciais inválidas.'],
             ]);
@@ -48,7 +48,7 @@ class AuthService
     {
         $user = User::where('token', $token)->first();
 
-        if (!$user || !$user->expire_at || $user->expire_at->isPast()) {
+        if (!$user || !$user->active || !$user->expire_at || $user->expire_at->isPast()) {
             return null;
         }
 

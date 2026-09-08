@@ -9,11 +9,18 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'name', 'phone', 'email', 'address', 'description',
-    'document', 'zip_code', 'street_name', 'street_number', 'neighborhood', 'city', 'state',
+    'document', 'zip_code', 'street_name', 'street_number', 'neighborhood', 'city', 'state', 'active',
 ])]
 class Client extends Model
 {
     use Auditable;
+
+    protected function casts(): array
+    {
+        return [
+            'active' => 'boolean',
+        ];
+    }
 
     public function projects(): HasMany
     {
