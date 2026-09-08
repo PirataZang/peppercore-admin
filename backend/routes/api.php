@@ -5,8 +5,11 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\IntegrationSettingController;
+use App\Http\Controllers\LeadSearchRequestController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PotentialLeadController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\PublicClientController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WebhookController;
@@ -16,6 +19,7 @@ use Illuminate\Support\Facades\Redis;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/webhooks/mercado-pago', [WebhookController::class, 'mercadoPago']);
+Route::post('/public/clients', [PublicClientController::class, 'create'])->middleware('throttle:20,1');
 
 Route::middleware('auth')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
@@ -67,6 +71,23 @@ Route::middleware('auth')->group(function () {
         Route::post('/', [DocumentController::class, 'create']);
         Route::put('/{id}', [DocumentController::class, 'update']);
         Route::delete('/{id}', [DocumentController::class, 'delete']);
+    });
+
+    Route::prefix('lead-search-requests')->group(function () {
+        Route::get('/', [LeadSearchRequestController::class, 'list']);
+        Route::get('/{id}', [LeadSearchRequestController::class, 'index']);
+        Route::post('/', [LeadSearchRequestController::class, 'create']);
+        Route::put('/{id}', [LeadSearchRequestController::class, 'update']);
+        Route::delete('/{id}', [LeadSearchRequestController::class, 'delete']);
+    });
+
+    Route::prefix('potential-leads')->group(function () {
+        Route::get('/', [PotentialLeadController::class, 'list']);
+        Route::post('/bulk', [PotentialLeadController::class, 'bulkCreate']);
+        Route::get('/{id}', [PotentialLeadController::class, 'index']);
+        Route::post('/', [PotentialLeadController::class, 'create']);
+        Route::put('/{id}', [PotentialLeadController::class, 'update']);
+        Route::delete('/{id}', [PotentialLeadController::class, 'delete']);
     });
 
     Route::get('/activity-log', [ActivityLogController::class, 'index']);

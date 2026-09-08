@@ -17,6 +17,7 @@
     "autoprefixer": "^10.5.3",
     "collect.js": "^4.36.1",
     "echarts": "^6.1.0",
+    "leaflet": "^1.9.4",
     "pinia": "^2.1.7",
     "postcss": "^8.5.19",
     "sweetalert2": "^11.26.25",

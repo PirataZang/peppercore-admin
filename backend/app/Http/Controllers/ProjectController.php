@@ -65,9 +65,11 @@ class ProjectController extends Controller
     /**
      * Aggregated data for the dashboard (totals, revenue, breakdown by type, upcoming dues).
      */
-    public function summary(): JsonResponse
+    public function summary(Request $request): JsonResponse
     {
-        return response()->json($this->projectService->summary());
+        $filters = $request->only(['date_from', 'date_to', 'status', 'client_id', 'project_id']);
+
+        return response()->json($this->projectService->summary($filters));
     }
 
     /**

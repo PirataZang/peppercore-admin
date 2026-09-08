@@ -113,6 +113,13 @@ const form = ref({
     active: true,
 })
 
+const prefillFromQuery = () => {
+    if (isEdit.value) return
+    if (route.query.name) form.value.name = route.query.name
+    if (route.query.phone) form.value.phone = route.query.phone
+    if (route.query.address) form.value.address = route.query.address
+}
+
 const fetchClient = async () => {
     if (!isEdit.value) return
 
@@ -187,7 +194,10 @@ const submitForm = async () => {
     }
 }
 
-onMounted(fetchClient)
+onMounted(() => {
+    prefillFromQuery()
+    fetchClient()
+})
 </script>
 
 <style scoped>
