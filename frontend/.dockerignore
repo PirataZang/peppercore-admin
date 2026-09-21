@@ -1,0 +1,9 @@
+# Mantém o contexto de build enxuto — e evita que node_modules/dist do host
+# sobrescrevam os artefatos gerados dentro da imagem (causa de erro de
+# binários nativos, ex.: rollup-linux-*).
+node_modules
+dist
+.git
+*.log
+.env
+.env.*

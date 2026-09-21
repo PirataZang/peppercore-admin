@@ -1,0 +1,7 @@
+vendor
+node_modules
+.env
+.env.*
+storage/logs
+bootstrap/cache/*.php
+npm-debug.log

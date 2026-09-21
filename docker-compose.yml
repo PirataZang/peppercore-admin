@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     build:
@@ -14,7 +12,6 @@ services:
     environment:
       - APP_ENV=${APP_ENV:-local}
       - APP_DEBUG=${APP_DEBUG:-true}
-      - APP_KEY=${APP_KEY}
       - DB_CONNECTION=pgsql
       - DB_HOST=postgres
       - DB_PORT=5432
@@ -43,7 +40,7 @@ services:
       - "${FRONTEND_PORT:-5174}:5174"
     volumes:
       - ./frontend:/app
-      - /app/node_modules
+      - frontend_node_modules:/app/node_modules
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
@@ -62,7 +59,7 @@ services:
       - POSTGRES_USER=${DB_USER:-peppercore}
       - POSTGRES_PASSWORD=${DB_PASSWORD:-secret123}
     ports:
-      - "${DB_PORT_EXTERNAL}:5432"
+      - "${DB_PORT_EXTERNAL:-5437}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -77,13 +74,15 @@ services:
     image: redis:7-alpine
     container_name: ${PROJECT_NAME:-peppercore}_redis
     restart: unless-stopped
+    # Só localhost: o servidor já tem um outro Redis publicado em 0.0.0.0:6379
+    # (container legado "redis") — evita conflito/ambiguidade de porta.
     command: redis-server --requirepass "${REDIS_PASSWORD:-redis123}" --bind 0.0.0.0 --protected-mode no
     ports:
-      - "${REDIS_PORT_EXTERNAL:-6379}:6379"
+      - "127.0.0.1:${REDIS_PORT_EXTERNAL:-6380}:6379"
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis123}", "ping"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -93,6 +92,7 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  frontend_node_modules:
 
 networks:
   peppercore_network:
