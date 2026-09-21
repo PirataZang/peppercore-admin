@@ -138,7 +138,9 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  // BASE_URL vem do `base` do vite.config.js — mantém as rotas sob o
+  // mesmo prefixo em que o nginx serve o app.
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 })
 
