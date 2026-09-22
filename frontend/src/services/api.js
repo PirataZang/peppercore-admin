@@ -1,4 +1,5 @@
 import { useAuthStore } from '@/stores/auth'
+import { apiUrl } from '@/config/api'
 
 export async function apiFetch(url, options = {}) {
   const auth = useAuthStore()
@@ -14,7 +15,7 @@ export async function apiFetch(url, options = {}) {
     headers.Authorization = `Bearer ${auth.token}`
   }
 
-  const response = await fetch(url, {
+  const response = await fetch(apiUrl(url), {
     ...options,
     headers,
   })

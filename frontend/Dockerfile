@@ -12,6 +12,9 @@ CMD ["npm", "run", "dev"]
 
 # Stage 3: Build image
 FROM base AS build
+# Prefixo das rotas de API no build (em produção: /peppercore-admin/)
+ARG API_ROUTE=/
+ENV API_ROUTE=$API_ROUTE
 COPY . .
 RUN npm run build
 

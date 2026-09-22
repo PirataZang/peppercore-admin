@@ -1,1 +1,8 @@
 .devscope/
+
+node_modules/
+
+# Ambiente local/prod — nunca versionar (usar .env.example como referência)
+.env
+.env.*
+!.env.example

@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { apiUrl } from '@/config/api'
 
 const STORAGE_KEYS = {
   token: 'peppercore_token',
@@ -74,7 +75,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async login(email, password) {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(apiUrl('/api/auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -94,7 +95,7 @@ export const useAuthStore = defineStore('auth', {
     async logout({ redirect = true } = {}) {
       if (this.token) {
         try {
-          await fetch('/api/auth/logout', {
+          await fetch(apiUrl('/api/auth/logout'), {
             method: 'POST',
             headers: {
               Authorization: `Bearer ${this.token}`,
@@ -127,7 +128,7 @@ export const useAuthStore = defineStore('auth', {
       }
 
       try {
-        const response = await fetch('/api/status', {
+        const response = await fetch(apiUrl('/api/status'), {
           headers: {
             Authorization: `Bearer ${this.token}`,
           },
