@@ -1,1 +1,4 @@
 .devscope/
+.opencode/
+
+.env
