@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { apiFetch } from '@/services/api'
 
 const STORAGE_KEYS = {
   token: 'peppercore_token',
@@ -74,9 +75,8 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async login(email, password) {
-      const response = await fetch('/api/auth/login', {
+      const response = await apiFetch('auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       })
 
@@ -94,11 +94,8 @@ export const useAuthStore = defineStore('auth', {
     async logout({ redirect = true } = {}) {
       if (this.token) {
         try {
-          await fetch('/api/auth/logout', {
+          await apiFetch('auth/logout', {
             method: 'POST',
-            headers: {
-              Authorization: `Bearer ${this.token}`,
-            },
           })
         } catch {
           // Ignora falha de rede no logout remoto.
@@ -127,11 +124,7 @@ export const useAuthStore = defineStore('auth', {
       }
 
       try {
-        const response = await fetch('/api/status', {
-          headers: {
-            Authorization: `Bearer ${this.token}`,
-          },
-        })
+        const response = await apiFetch('status')
 
         if (!response.ok) {
           await this.logout()
