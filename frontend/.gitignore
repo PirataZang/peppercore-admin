@@ -1,0 +1,10 @@
+# Deps / build
+node_modules/
+dist/
+dist-ssr/
+
+# Env real nunca vai para o repo (o template .env.example continua versionado)
+.env
+.env.local
+.env.*.local
+!.env.example
