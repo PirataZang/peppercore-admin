@@ -1,4 +1,11 @@
 .devscope/
 .opencode/
 
+# Env real nunca vai para o repo (vale para /, backend/ e frontend/).
+# Os templates .env.example continuam versionados.
 .env
+.env.local
+.env.*.local
+!.env.example
+!backend/.env.example
+!frontend/.env.example
